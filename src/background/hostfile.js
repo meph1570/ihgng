@@ -354,13 +354,14 @@ function parseHostFile(source, content, options={}) {
                 }
             }
         }*/
-
+        let maxThreads = parseInt(currentNode.attributes.maxThreads ? currentNode.attributes.maxThreads.value : 0);
 
         let hoster = {
             id: currentNode.id,
             pattern: urlRegexp,
             parseFunc: parseFunc,
-            source: source
+            source: source,
+            maxThreads: maxThreads
         };
 
         if (options.debug) {

@@ -242,9 +242,20 @@ class DownloadList {
                 if (Object.keys(this.downloading).length >= this.maxConnections) {
                     return;
                 }
+
                 if (backupLink.state === states.WAITING) {
+                    let hoster = this.hosters.getHoster(backupLink.url);
+                    if (hoster.maxThreads) {
+                        let connections = Object.values(this.downloading).filter((id) => {
+                            return id === hoster.id
+                        }).length;
+                        if (connections >= hoster.maxThreads) {
+                            continue;
+                        }
+                    }
+
                     setState(this.getLinks(backupLink.id), states.PARSE);
-                    this.downloading[backupLink.id] = backupLink;
+                    this.downloading[backupLink.id] = hoster.id;
 
                     this.hosters.getDownloadUrl(backupLink.url, {debug: false}).then(
                         (result) => {
