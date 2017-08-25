@@ -1,0 +1,26 @@
+{
+    "presets": [
+        [
+            "env",
+            {
+                "modules": false
+            }
+        ]
+    ],
+    "plugins": [
+        "transform-vue-jsx",
+        [
+            "transform-runtime",
+            {
+                "polyfill": false,
+                "regenerator": true
+            }
+        ],
+        ["component", [
+            {
+                "libraryName": "element-ui",
+                "styleLibraryName": "theme-default"
+            }
+        ]]
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "ImagehostGrabber WebExt",
+    "version": "0.0",
+
+    "description": "Foo",
+    "homepage_url": "http://ihgng.cpc.to/",
+
+    "permissions": [
+        "activeTab",
+        "<all_urls>",
+        "webRequest",
+        "downloads",
+        "storage",
+        "tabs",
+        "notifications"
+    ],
+
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+
+
+    "browser_action": {
+        "browser_style": true,
+        "default_title": "Download with IHGng",
+        "default_icon": "icons/download.png",
+        "default_popup": "popup/popup.html"
+},
+
+    "background": {
+        "page": "background.html"
+    }
+}
