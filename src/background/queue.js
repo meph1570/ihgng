@@ -258,7 +258,6 @@ class DownloadList {
                                     this.processQueue();
                                 },
                                 () => {
-                                    console.log("DL failed");
                                     setState(this.getLinks(backupLink.id), states.FAILED);
                                     delete(this.downloading[backupLink.id]);
                                     this.processQueue();
