@@ -1,3 +1,12 @@
 * {
     font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif
 }
+
+.panel-list-item .icon {
+    margin-right: 6px;
+    opacity: 0.5;
+}
+
+.panel-list-item:hover .icon {
+    opacity: 1;
+}
