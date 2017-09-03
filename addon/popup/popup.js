@@ -18,7 +18,7 @@ document.addEventListener("click", (e) => {
         ihg.collectLinks(false);
     }
     else if (e.target.id === "ihg-settings") {
-        ihg.openSettings();
+        browser.runtime.openOptionsPage();
     }
     window.close();
 });

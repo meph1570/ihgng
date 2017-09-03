@@ -9,15 +9,57 @@ Vue.use(ElementUI);
 
 let vm;
 
-browser.runtime.onMessage.addListener((message) => {
-    console.log("Message for 'settings':", message);
+async function getConfig() {
+    let ihg = await browser.runtime.getBackgroundPage();
 
-    if (message.action === "config") {
+    let config = {
+        hostfiles: [],
+        hosters: ihg.ihgng.hosters.getHosterList()
+    };
+
+    for (let key of Object.keys(ihg.ihgng.config)) {
+        if (key !== "hostfiles") {
+            config[key] = ihg.ihgng.config[key];
+        }
+        else {
+            for (let hostfile of ihg.ihgng.config.hostfiles) {
+                config.hostfiles.push(Object.assign({}, hostfile));
+            }
+        }
+    }
+
+    let storage = await browser.storage.local.get();
+
+    for (let key of Object.keys(storage)) {
+        let match = key.match(/hostfile:(.+)/);
+
+        if (match) {
+            let [prefix, url] = match;
+            let hostfile = storage[key];
+
+            for (let configHostFile of config.hostfiles) {
+                if (configHostFile.url === url) {
+                    configHostFile.lastSync = hostfile.lastSync;
+                    break;
+                }
+            }
+        }
+    }
+
+    return config;
+}
+
+
+getConfig().then(
+    (config) => {
         vm = new Vue({
             el: '#app',
             render: function (h) {
                 return h(App, {
-                    props: {config: this.config, testResult: this.testResult},
+                    props: {
+                        config: this.config,
+                        testResult: this.testResult
+                    },
                     on: {
                         "test-hoster": (params) => {
                             browser.runtime.sendMessage({
@@ -59,10 +101,20 @@ browser.runtime.onMessage.addListener((message) => {
                 });
             },
             data: {
-                config: message.config,
+                config: config,
                 testResult: {}
             }
         });
+    },
+    (e) => console.error("Can't fetch config: ", e)
+);
+
+
+browser.runtime.onMessage.addListener((message) => {
+    console.log("Message for 'settings':", message);
+
+    if (message.action === "config") {
+
     }
     else if (message.action === "test-hoster") {
         message.result.available = true;

@@ -3,7 +3,7 @@ import {HOSTFILE_DEFAULT_URL} from "../lib/globals"
 
 import {Hosters} from "./hostfile";
 import {DownloadList} from "./queue";
-import {openLinkSelect, openPanel, openSettings} from "./ui"
+import {getPanelTab, openLinkSelect, openPanel} from "./ui"
 
 const DEFAULT_CONFIG = {
     "hostfiles": [
@@ -198,7 +198,6 @@ window.collectLinks = collectLinks;
 
 window.openPanel = openPanel;
 window.openLinkSelect = openLinkSelect;
-window.openSettings = openSettings;
 
 window.getDownloadList = function () {
     console.error("[warning] getDownloadList is deprecated");
