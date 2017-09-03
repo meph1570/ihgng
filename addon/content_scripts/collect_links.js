@@ -38,7 +38,10 @@ function collectLinks(start) {
     sending.then(handleResponse, handleError);
 }
 
-browser.runtime.onMessage.addListener((message) => {
+function listener(message) {
     console.debug("[collect_links] message received", message);
-    collectLinks(message.start)
-});
+    collectLinks(message.start);
+    browser.runtime.onMessage.removeListener(listener);
+}
+
+browser.runtime.onMessage.addListener(listener);
