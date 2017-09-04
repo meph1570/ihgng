@@ -23,8 +23,10 @@ class Link {
     }
 
     cancel() {
-        this.xhr.abort();
-        this.xhr = null;
+        if (this.xhr) {
+            this.xhr.abort();
+            this.xhr = null;
+        }
         this.updateProgress(0, 0);
         this.setState(states.CANCELLED);
     }
@@ -193,37 +195,39 @@ class DownloadList {
         return group;
     }
 
+    setState(links, state)  {
+        for (let link of links) {
+            try {
+                link.setState(state);
+            }
+            catch (e) {
+                if (e instanceof TypeError) {
+                    console.warn("setState(): write to dead object");
+                }
+                else {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    setProgress(links, loaded, total) {
+        for (let link of links) {
+            try {
+                link.updateProgress(loaded, total);
+            }
+            catch (e) {
+                if (e instanceof TypeError) {
+                    console.warn("setProgress(): write to dead object", e);
+                }
+                else {
+                    //throw e;
+                }
+            }
+        }
+    }
+
     processQueue() {
-        let setState = (links, state) => {
-            for (let link of links) {
-                try {
-                    link.setState(state);
-                }
-                catch (e) {
-                    if (e instanceof TypeError) {
-                        console.warn("setState(): write to dead object");
-                    }
-                    else {
-                        throw e;
-                    }
-                }
-            }
-        };
-        let setProgress = (links, loaded, total) => {
-            for (let link of links) {
-                try {
-                    link.updateProgress(loaded, total);
-                }
-                catch (e) {
-                    if (e instanceof TypeError) {
-                        console.warn("setProgress(): write to dead object", e);
-                    }
-                    else {
-                        //throw e;
-                    }
-                }
-            }
-        };
         let setError = (links, error) => {
             for (let link of links) {
                 try {
@@ -239,6 +243,10 @@ class DownloadList {
                 }
             }
         };
+
+        if (this.paused) {
+            return;
+        }
 
         for (let groupIdx in Object.keys(this.shadowDownloads)) {
             let backupGroup = this.shadowDownloads[groupIdx];
@@ -263,7 +271,7 @@ class DownloadList {
                         }
                     }
 
-                    setState(this.getLinks(backupLink.id), states.PARSE);
+                    this.setState(this.getLinks(backupLink.id), states.PARSE);
                     this.downloading[backupLink.id] = hoster.id;
 
                     this.hosters.getDownloadUrl(backupLink.url, {debug: false}).then(
@@ -271,14 +279,19 @@ class DownloadList {
                             let xhr = download(
                                 result.imgUrl,
                                 result.fileName,
-                                (event) => setProgress(this.getLinks(backupLink.id), event.loaded, event.total),
+                                (event) => {
+                                    console.log(event);
+                                    const links = this.getLinks(backupLink.id);
+                                    this.setProgress(links, event.loaded, event.total);
+                                    this.setState(links, states.DOWNLOADING);
+                                },
                                 () => {
-                                    setState(this.getLinks(backupLink.id), states.FINISHED);
+                                    this.setState(this.getLinks(backupLink.id), states.FINISHED);
                                     delete(this.downloading[backupLink.id]);
                                     this.processQueue();
                                 },
                                 () => {
-                                    setState(this.getLinks(backupLink.id), states.FAILED);
+                                    this.setState(this.getLinks(backupLink.id), states.FAILED);
                                     delete(this.downloading[backupLink.id]);
                                     this.processQueue();
                                 }
@@ -326,9 +339,113 @@ class DownloadList {
         }
     }
 
-    cancel(id) {
-        this.downloading[id].cancel();
-        delete(this.downloading[id]);
+    /**
+     * Cancels a running download
+     *
+     * @param {Link} link Must be link from the shadowDownloads collection
+     */
+    cancel(link) {
+        link.cancel();
+
+        let [groupIdx, linkIdx] = this.linkIdToIndex[link.id];
+        try {
+            let otherLink = this.downloads[groupIdx].links[linkIdx];
+            otherLink.updateProgress(0, 0);
+            otherLink.setState(states.CANCELLED);
+        }
+        catch (e) {
+            if (e instanceof TypeError) {
+                console.debug("Dead link", e);
+            }
+            else {
+                throw e;
+            }
+        }
+
+        if (this.downloading[link.id]) {
+            delete(this.downloading[link.id]);
+        }
+    }
+
+    removeIds(ids) {
+        let linkIndexesToDelete = {};
+        for (let id of ids) {
+            if (id in this.linkIdToIndex) {
+                let [groupIdx, linkIdx] = this.linkIdToIndex[id];
+                if (!linkIndexesToDelete[groupIdx]) {
+                    linkIndexesToDelete[groupIdx] = [];
+                }
+                linkIndexesToDelete[groupIdx].push(linkIdx);
+            }
+            else if (id in this.groupIdToIndex) {
+                let groupIdx = this.groupIdToIndex[id];
+                linkIndexesToDelete[groupIdx] = null;
+            }
+            else {
+                console.warn("Link or group id", id, "not in queue");
+            }
+        }
+
+        this.removeIndexes(linkIndexesToDelete);
+    }
+
+    removeIndexes(indexesToDelete) {
+        let groupIndexes = Object.keys(indexesToDelete).sort((a, b) => b - a);
+
+        console.log(groupIndexes);
+        for (let groupIdx of groupIndexes) {
+            let linkIndexes = indexesToDelete[groupIdx];
+            if (linkIndexes === null) {
+                this.shadowDownloads[groupIdx].links.forEach((link) => {
+                    this.cancel(link);
+                });
+
+                this.downloads.splice(groupIdx, 1);
+                this.shadowDownloads.splice(groupIdx, 1);
+            }
+            else {
+                for (let linkIdx of linkIndexes.sort((a, b) => b - a)) {
+                    let link = this.shadowDownloads[groupIdx].links[linkIdx];
+
+                    this.cancel(link);
+
+                    this.downloads[groupIdx].links.splice(linkIdx, 1);
+                    this.shadowDownloads[groupIdx].links.splice(linkIdx, 1);
+                }
+
+                if (!this.downloads[groupIdx].links.length) {
+                    this.downloads.splice(groupIdx, 1);
+                    this.shadowDownloads.splice(groupIdx, 1);
+                }
+            }
+        }
+
+        // Rebuild group id to index mapping
+        this.groupIdToIndex = {};
+        this.linkIdToIndex = {};
+
+        this.shadowDownloads.forEach((group, groupIndex) => {
+            this.groupIdToIndex[group.id] = groupIndex;
+
+            group.links.forEach((link, linkIndex) => {
+                this.linkIdToIndex[link.id] = [groupIndex, linkIndex];
+            });
+        });
+    }
+
+    cancelIndexes(groups) {
+        console.log(groups);
+        for (let groupIdx of Object.keys(groups)) {
+            let linkIndexes = groups[groupIdx];
+            if (linkIndexes === null) {
+                linkIndexes = Object.keys(this.shadowDownloads[groupIdx]);
+            }
+
+            linkIndexes.forEach((index) => {
+                console.log("!!!", groupIdx, index);
+                this.cancel(this.shadowDownloads[groupIdx].links[index]);
+            });
+        }
     }
 
     persist() {

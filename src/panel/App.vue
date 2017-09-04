@@ -98,6 +98,44 @@
             unpauseDownloads() {
                 downloadList.unpause();
             },
+
+            groupSelection() {
+                let selection = this.selectionModel.getSelection();
+                let groups = {};
+                for (let [groupIdx, linkIdx] of selection.sort((a,b) => a[0] > b[0])) {
+                    if (!(groupIdx in groups)) {
+                        groups[groupIdx] = [];
+                    }
+                    if (groups[groupIdx] !== null) {
+                        if (linkIdx !== -1) {
+                            groups[groupIdx].push(linkIdx);
+                        }
+                        else {
+                            groups[groupIdx] = null;
+                        }
+                    }
+                }
+                return groups;
+            },
+
+            removeDownloads() {
+                let groups = this.groupSelection();
+
+                this.clearSelection();
+                this.selectionModel.clear();
+
+                downloadList.removeIndexes(groups);
+            },
+
+            resumeDownloads() {
+                let groups = this.groupSelection()
+            },
+
+            cancelDownloads() {
+                let groups = this.groupSelection();
+                downloadList.cancelIndexes(groups);
+            },
+
             getIdFromPair(pair) {
                 let [groupIdx, linkIdx] = pair;
                 if (linkIdx !== -1) {
