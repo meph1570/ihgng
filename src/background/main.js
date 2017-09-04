@@ -22,6 +22,7 @@ class IHGng {
     constructor() {
         this.hosters = new Hosters();
         this.downloadList = new DownloadList(this.hosters);
+        this.downloadList.onPauseChanged = (paused) => this.onPause(paused);
         //this.downloadList.test();
 
         this.config = null;
@@ -65,6 +66,14 @@ class IHGng {
 
         this.hosters.maxConnections = newConfig.threads;
     }
+
+    onPause(paused) {
+        getPanelTab(browser.extension.getURL("panel/panel.html")).then((tab) => {
+            browser.tabs.sendMessage(tab.id, {
+                action: "pause-changed",
+                paused: paused
+            })
+        });
     }
 }
 

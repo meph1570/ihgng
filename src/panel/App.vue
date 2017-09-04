@@ -1,5 +1,23 @@
 <template>
     <div id="app">
+        <el-row id="controls">
+            <el-col :span="24">
+                <el-button @click="unpauseDownloads" v-if="paused">
+                    <img class="icon" src="/icons/285-play3.svg" alt="" />
+                    Start
+                </el-button>
+                <el-button @click="pauseDownloads" v-if="!paused">
+                    <img class="icon" src="/icons/286-pause2.svg" alt="" />
+                    Pause
+                </el-button>
+                <el-button @click="removeDownloads">
+                    Remove
+                </el-button>
+                <el-button @click="cancelDownloads">
+                    Cancel
+                </el-button>
+            </el-col>
+        </el-row>
         <el-row id="tree-holder">
             <el-col :span="24">
                 <el-tree
@@ -30,6 +48,10 @@
 
     export default {
         name: 'app',
+
+        props: {
+            paused: { type: Boolean }
+        },
         data() {
             return {
                 data2: downloads,
@@ -69,6 +91,13 @@
                 store.remove(data);
             },
 
+            pauseDownloads() {
+                downloadList.pause();
+            },
+
+            unpauseDownloads() {
+                downloadList.unpause();
+            },
             getIdFromPair(pair) {
                 let [groupIdx, linkIdx] = pair;
                 if (linkIdx !== -1) {
@@ -238,6 +267,10 @@
 </script>
 
 <style>
+    #controls .icon {
+        vertical-align: middle;
+    }
+
     #tree-holder {
          -moz-user-select: none;
     }

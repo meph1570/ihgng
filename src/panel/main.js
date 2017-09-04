@@ -11,11 +11,25 @@ Vue.use(ElementUI);
 
 let vm = new Vue({
     el: '#app',
-    render: h => h(App),
+    render: function (h) {
+        return h(App, {
+            props: {
+                paused: this.paused
+            }
+        });
+    },
     data: {
+        paused: false
     }
 });
 console.log(vm);
+
+browser.runtime.onMessage.addListener((message) => {
+    console.log("Message for panel:", message);
+    if (message.action === "pause-changed") {
+        vm.$data.paused = message.paused;
+    }
+});
 
 window.onunload = function () {
     vm.$destroy();

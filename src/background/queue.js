@@ -119,17 +119,26 @@ class DownloadList {
         this.currentId = 0;
 
         this.onAddLinks = null;
+        this.onPauseChanged = null;
 
         this.paused = false;
+    }
+
+    firePauseCallback() {
+        if (this.onPauseChanged) {
+            this.onPauseChanged(this.paused);
+        }
     }
 
     pause() {
         this.paused = true;
+        this.firePauseCallback();
     }
 
     unpause() {
         this.paused = false;
-        this.processQueue();
+        //this.processQueue();
+        this.firePauseCallback();
     }
 
     nextId() {
