@@ -103,6 +103,14 @@ class SelectionModel {
         this.itemCountGetter = itemCountGetter;
     }
 
+    clear() {
+        this.selection = {};
+    }
+
+    isSelected(groupIdx, itemIdx) {
+        return `${groupIdx}:${itemIdx}` in this.selection;
+    }
+
     selectAll(includeGroups=false) {
         let totalItems = 0;
         for (let groupIdx = 0; groupIdx < this.groupCountGetter(); groupIdx++) {

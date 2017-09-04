@@ -1,5 +1,5 @@
 <template>
-    <div class="table-holder" @contextmenu.prevent="$refs.ctxMenu.open">
+    <div class="table-holder"> <!-- @contextmenu.prevent="$refs.ctxMenu.open">-->
         <el-table
                 ref="multipleTable"
                 :data=links
@@ -25,7 +25,7 @@
                             <img :src=scope.row.thumb />
                         </div>
                     </el-popover>
-                    <span v-if="!thumbsEnabled">
+                    <span class="img-placeholder" v-if="!thumbsEnabled">
                         [hidden]
                     </span>
                 </template>
@@ -144,12 +144,18 @@
 
             handleContextMenu(row, event) {
                 console.log(row, event, this);
-                //this.$refs.ctxMenu.open();
+                if (!this.selectionModel.isSelected(0, row.index)) {
+                    this.clearSelection();
+                    this.selectionModel.selectSingle(0, row.index);
+                    this.highlightSelection();
+                }
+                this.$refs.ctxMenu.open(event);
                 event.preventDefault();
             },
 
             toggleSelection(toggle) {
-                for (let rowIdx in this.selectionModel.selection) {
+                for (let selection in this.selectionModel.selection) {
+                    let rowIdx = selection.split(":")[1];
                     this.$refs.multipleTable.toggleRowSelection(this.links[rowIdx], toggle);
                 }
             },
@@ -183,8 +189,13 @@
         vertical-align: center;
     }
 
+    .thumbnail-column {
+        text-align: center;
+    }
+    
     .link-table {
         -moz-user-select: none;
     }
-
+    
+    
 </style>
