@@ -62,6 +62,9 @@ class IHGng {
     changeConfig(newConfig) {
         delete(newConfig.hosters); // hoster are synced directly
         Object.assign(this.config, newConfig);
+
+        this.hosters.maxConnections = newConfig.threads;
+    }
     }
 }
 
