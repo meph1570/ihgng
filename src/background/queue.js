@@ -367,6 +367,11 @@ class DownloadList {
         }
     }
 
+    resume(link) {
+        this.setState(this.getLinks(link.id), states.WAITING);
+        this.processQueue();
+    }
+
     removeIds(ids) {
         let linkIndexesToDelete = {};
         for (let id of ids) {
@@ -444,6 +449,19 @@ class DownloadList {
             linkIndexes.forEach((index) => {
                 console.log("!!!", groupIdx, index);
                 this.cancel(this.shadowDownloads[groupIdx].links[index]);
+            });
+        }
+    }
+
+    resumeIndexes(groups) {
+        for (let groupIdx of Object.keys(groups)) {
+            let linkIndexes = groups[groupIdx];
+            if (linkIndexes === null) {
+                linkIndexes = Object.keys(this.shadowDownloads[groupIdx]);
+            }
+
+            linkIndexes.forEach((index) => {
+                this.resume(this.shadowDownloads[groupIdx].links[index]);
             });
         }
     }
