@@ -239,7 +239,14 @@ function download(url, filename, progress, success, failure) {
             let blob = this.response;
             let url = window.URL.createObjectURL(blob);
             browser.downloads.download({url: url, filename: filename}).then((downloadId) => {
-                browser.downloads.erase({id: downloadId});
+                let revoker = (delta) => {
+                    if (delta && delta.id === downloadId && delta.state.current === "complete") {
+                        window.URL.revokeObjectURL(url);
+                        browser.downloads.onChanged.removeListener(revoker);
+                        browser.downloads.erase({id: downloadId});
+                    }
+                };
+                browser.downloads.onChanged.addListener(revoker);
             });
             success();
         }
