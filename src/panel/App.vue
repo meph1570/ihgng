@@ -20,24 +20,40 @@
         </el-row>
         <el-row id="tree-holder">
             <el-col :span="24">
-                <el-tree
-                        ref="tree"
-                        :data="data2"
-                        :props="defaultProps"
-                        empty-text="No downloads"
-                        node-key="id"
-                        default-expand-all
-                        :expand-on-click-node="false"
-                        :render-content="renderContent"
-                        v-on:node-click="nodeClicked"
-                >
-                </el-tree>
+                <div @contextmenu.prevent="contextMenuRequested($event)">
+                    <el-tree
+                            ref="tree"
+                            :data="data2"
+                            :props="defaultProps"
+                            empty-text="No downloads"
+                            node-key="id"
+                            default-expand-all
+                            :expand-on-click-node="false"
+                            :render-content="renderContent"
+                            v-on:node-click="nodeClicked"
+                    >
+                    </el-tree>
+                </div>
             </el-col>
         </el-row>
+
+        <context-menu id="context-menu" ref="ctxMenu">
+            <li class="ctx-item" @click="resumeDownloads">
+                <img src="/icons/loop.svg" /> Resume
+            </li>
+            <li class="ctx-item" @click="cancelDownloads">
+                <img src="/icons/cross.svg" /> Cancel
+            </li>
+            <li class="ctx-item" @click="removeDownloads">
+                <img src="/icons/bin.svg" /> Remove
+            </li>
+        </context-menu>
     </div>
 </template>
 
 <script type="text/babel">
+    import contextMenu from "vue-context-menu";
+
     import { humanFileSize, states } from "../lib/utils.js";
     import {SelectionModel} from "../lib/utils";
 
@@ -52,6 +68,11 @@
         props: {
             paused: { type: Boolean }
         },
+
+        components: {
+            contextMenu
+        },
+
         data() {
             return {
                 data2: downloads,
@@ -128,12 +149,41 @@
             },
 
             resumeDownloads() {
-                let groups = this.groupSelection()
+                let groups = this.groupSelection();
+                downloadList.resumeIndexes(groups);
             },
 
             cancelDownloads() {
                 let groups = this.groupSelection();
                 downloadList.cancelIndexes(groups);
+            },
+
+            contextMenuRequested(event) {
+                console.log(event);
+
+                let e = event.target;
+                let $row = e.closest(".tree-node");
+
+                let groupIdx, linkIdx;
+
+                if ($row.classList.contains("group")) {
+                    groupIdx = downloadList.groupIdToIndex[$row.dataset.id];
+                    linkIdx = -1;
+                }
+                else if ($row.classList.contains("link")) {
+                    [groupIdx, linkIdx] = downloadList.linkIdToIndex[$row.dataset.id];
+                }
+                else {
+                    console.error("Unexpected element found");
+                    return;
+                }
+
+                if (!this.selectionModel.isSelected(groupIdx, linkIdx)) {
+                    this.clearSelection();
+                    this.selectionModel.selectSingle(groupIdx, linkIdx);
+                    this.highlightSelection();
+                }
+                this.$refs.ctxMenu.open(event);
             },
 
             getIdFromPair(pair) {
@@ -221,7 +271,7 @@
                 }
 
                 return (
-                    <div class={{ "tree-node": true}}
+                    <div class={{ "tree-node": true, "link": true }}
                          onClick={this.clickHandler}
                          data-id={link.id}>
                         <div class="node-label-container">
@@ -236,6 +286,7 @@
                             <span class="total">{humanFileSize(link.total)}</span>
                         </div>
                         <div class="node-extra">
+                            { link.state }
                         </div>
                     </div>
                 );
@@ -268,7 +319,7 @@
                 };
 
                 return (
-                    <div class={{ "tree-node": true}}
+                    <div class={{ "tree-node": true, "group": true }}
                          onClick={this.clickHandler}
                          data-id={group.id}>
                         <div class="node-label-container">
