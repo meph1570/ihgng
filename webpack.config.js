@@ -41,7 +41,7 @@ module.exports = {
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-                loader: 'file-loader'
+                loader: 'file-loader?name=./assets/[hash].[ext]'
             }
         ],
         loaders: [
