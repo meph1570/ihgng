@@ -3,7 +3,7 @@ import {HOSTFILE_DEFAULT_URL} from "../lib/globals"
 
 import {Hosters} from "./hostfile";
 import {DownloadList} from "./queue";
-import {getPanelTab, openLinkSelect, openPanel} from "./ui"
+import {getPanelTab, handleMenu, openLinkSelect, openPanel} from "./ui"
 
 const DEFAULT_CONFIG = {
     "hostfiles": [
@@ -58,13 +58,44 @@ class IHGng {
             () => console.log("[main] Hostfiles loaded"),
             () => console.error("[main] Hostfiles failed")
         );
+
+        if (this.config.contextMenuEnabled) {
+            this.createContextMenu();
+        }
     }
 
     changeConfig(newConfig) {
-        delete(newConfig.hosters); // hoster are synced directly
+        delete(newConfig.hosters); // hosters are synced directly
+
+        if (this.config.contextMenuEnabled && !newConfig.contextMenuEnabled) {
+            browser.menus.removeAll();
+        }
+        else if (!this.config.contextMenuEnabled && newConfig.contextMenuEnabled) {
+            this.createContextMenu();
+        }
+
         Object.assign(this.config, newConfig);
 
         this.hosters.maxConnections = newConfig.threads;
+
+    createContextMenu() {
+        browser.menus.create({
+          id: "ihg-get-all-pics",
+          title: "Get all pics",
+          contexts: ["all"]
+        });
+
+        browser.menus.create({
+          id: "ihg-get-some-pics",
+          title: "Select pics",
+          contexts: ["all"]
+        });
+
+        browser.menus.create({
+          id: "ihg-open-panel",
+          title: "Open panel",
+          contexts: ["all"]
+        });
     }
 
     onPause(paused) {
@@ -218,6 +249,10 @@ function collectLinks(start) {
 
 
 browser.runtime.onMessage.addListener(handleMessage);
+browser.menus.onClicked.addListener((info, tab) => {
+    console.log(info, tab);
+    handleMenu(window, info.menuItemId, false);
+});
 
 // Expose necessary objects for content scripts
 window.ihgng = new IHGng();

@@ -95,8 +95,27 @@ function openLinkSelect(links) {
     );*/
 }
 
+function handleMenu(ihg, id, shiftKey) {
+    if (id === "ihg-get-all-pics") {
+        ihg.collectLinks(true);
+        if (!shiftKey) {
+            ihg.openPanel();
+        }
+    }
+    else if (id === "ihg-open-panel") {
+        ihg.openPanel();
+    }
+    else if (id === "ihg-get-some-pics") {
+        ihg.collectLinks(false);
+    }
+    else if (id === "ihg-settings") {
+        browser.runtime.openOptionsPage();
+    }
+}
+
 
 export {
+    handleMenu,
     getPanelTab,
     openLinkSelect,
     openPanel
