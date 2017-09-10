@@ -19,7 +19,7 @@
                     width="120">
                 <template scope="scope">
                     <!--<img v-if="scope.row.thumb" :src=scope.row.thumb/>-->
-                    <el-popover v-if="scope.row.thumb && thumbsEnabled" trigger="hover" placement="top">
+                    <el-popover v-if="scope.row.thumb && thumbsEnabled" trigger="hover" placement="right">
                         <img :src=scope.row.thumb />
                         <div slot="reference" class="thumb-wrapper">
                             <img :src=scope.row.thumb />
