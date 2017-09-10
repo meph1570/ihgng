@@ -78,6 +78,9 @@ class IHGng {
 
         this.hosters.maxConnections = newConfig.threads;
 
+        browser.storage.local.set({config: newConfig});
+    }
+
     createContextMenu() {
         browser.menus.create({
           id: "ihg-get-all-pics",
