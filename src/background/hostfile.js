@@ -563,7 +563,7 @@ class Hosters {
         this.hosters = {};
         this.matchedHosters = {};
 
-        await this.load(this.urls, {});
+        await this.load(this.urls, {force: true});
     }
 
     async testHoster(id, urlpattern, searchpattern, url) {
