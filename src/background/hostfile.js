@@ -108,7 +108,7 @@ function makeParseFunc(searchExpr) {
             return function (pageData, pageUrl) {
                 let src;
                 try {
-                    src = document.querySelector("#" + picId).src;
+                    src = document.getElementById(picId).attributes.src.value;
                 }
                 catch (e) {
                     if (e instanceof SyntaxError) {
@@ -161,10 +161,10 @@ function makeParseFunc(searchExpr) {
                 let $el = document.querySelector(qs);
                 if ($el !== null) {
                     if ($el.tagName === "A") {
-                        imgUrl = $el.href;
+                        imgUrl = $el.attributes.href.value;
                     }
                     else if ($el.tagName === "IMG") {
-                        imgUrl = $el.src;
+                        imgUrl = $el.attributes.src.value;
                     }
                     else {
                         return {
@@ -196,7 +196,7 @@ function makeParseFunc(searchExpr) {
                 for (let element of document.querySelectorAll("img")) {
                     if (element.outerHTML.match(rgx)) {
                         return {
-                            imgUrl: element.src,
+                            imgUrl: element.attributes.src.value,
                             status: "OK"
                         }
                     }
