@@ -46,6 +46,9 @@ async function getConfig() {
         }
     }
 
+    // TODO: find out why this need a superclone
+    config = JSON.parse(JSON.stringify(config));
+
     return config;
 }
 
