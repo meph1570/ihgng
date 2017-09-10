@@ -126,7 +126,16 @@ function handleMessage(request, sender, sendResponse) {
     }
     else if (request.action === "test-hoster") {
         let params = request.params;
-        ihgng.hosters.testHoster(params.id, params.urlpattern, params.searchpattern, params.url).then(
+        let testing = ihgng.hosters.testHoster(
+            params.id,
+            params.urlpattern,
+            params.searchpattern,
+            params.errorpattern,
+            params.filenamepattern,
+            params.url
+        );
+
+        testing.then(
             (result) => {
                 browser.tabs.sendMessage(sender.tab.id, {
                     action: "test-hoster",
@@ -147,7 +156,13 @@ function handleMessage(request, sender, sendResponse) {
     }
     else if (request.action === "save-hoster") {
         let hoster = request.hoster;
-        ihgng.hosters.localHostFile.addHoster(hoster.id, hoster.urlpattern, hoster.searchpattern);
+        ihgng.hosters.localHostFile.addHoster(
+            hoster.id,
+            hoster.urlpattern,
+            hoster.searchpattern,
+            hoster.errorpattern,
+            hoster.filenamepattern
+        );
         browser.tabs.sendMessage(sender.tab.id, {
             action: "refresh-hosters",
             hosters: ihgng.hosters.getHosterList(),

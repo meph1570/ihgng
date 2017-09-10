@@ -85,8 +85,24 @@ function getPageDOM(url) {
 }
 
 
-function makeParseFunc(searchExpr) {
+function makeParseFunc(searchExpr, errorRegex) {
     let parseFunc;
+
+    const checkError = (pageData) => {
+        if (!errorRegex) {
+            return false;
+        }
+
+        if (pageData.match(errorRegex)) {
+            return {
+                imgUrl: null,
+                status: "ABORT",
+                debug: "Error regex matched: " + errorRegex.toString()
+            }
+        }
+
+        return false;
+    };
 
     if (searchExpr.startsWith("function")) {
         let funcStr = "(function getFunc() { return " + searchExpr + "})();";
@@ -106,6 +122,11 @@ function makeParseFunc(searchExpr) {
         let picId = searchExpr.match(/"ID: (.+)"/)[1];
         parseFunc = function (document) {
             return function (pageData, pageUrl) {
+                let error = checkError(pageData);
+                if (error) {
+                    return error;
+                }
+
                 let src;
                 try {
                     src = document.getElementById(picId).attributes.src.value;
@@ -157,6 +178,11 @@ function makeParseFunc(searchExpr) {
 
         parseFunc = function (document) {
             return function (pageData, pageUrl) {
+                let error = checkError(pageData);
+                if (error) {
+                    return error;
+                }
+
                 let imgUrl = null;
                 let $el = document.querySelector(qs);
                 if ($el !== null) {
@@ -193,6 +219,10 @@ function makeParseFunc(searchExpr) {
         let rgx = new RegExp(searchExpr.substr(1, searchExpr.length - 2));
         parseFunc = function (document) {
             return function (pageData, pageUrl) {
+                let error = checkError(pageData);
+                if (error) {
+                    return error;
+                }
                 for (let element of document.querySelectorAll("img")) {
                     if (element.outerHTML.match(rgx)) {
                         return {
@@ -213,6 +243,47 @@ function makeParseFunc(searchExpr) {
 }
 
 
+function makeFileNameFunc(mode, regex, replace) {
+    return function (filename, pageData) {
+        let thing = mode === "filename" ? filename : pageData;
+
+        if (!thing.match(regex)) {
+            console.debug("[hostfile] No match", {mode, thing, regex, replace});
+            return filename;
+        }
+
+        if (mode === "filename") {
+            return filename.replace(regex, replace);
+        }
+        else if (mode === "content") {
+            let matches = pageData.match(regex);
+            return replace.replace(/(\$(\d))/g, (m1, m2, index) => matches[index])
+        }
+        else {
+            console.error("[hostfile] Invalid filename mode");
+            return filename;
+        }
+    };
+}
+
+function isValidFileNamePattern(filenamepattern) {
+    for (let field of ["mode", "pattern", "filename"]) {
+        if (filenamepattern[field] === null || filenamepattern[field] === undefined) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function makeFileNameFuncFromObject(filenamepattern) {
+    if (!isValidFileNamePattern(filenamepattern)) {
+        return null;
+    }
+
+    return makeFileNameFunc(filenamepattern.mode, new RegExp(filenamepattern.pattern), filenamepattern.filename);
+}
+
+
 function parseHostFile(source, content, options={}) {
     console.log("[hostfile] Parsing", source);
     let hosters = {};
@@ -228,11 +299,22 @@ function parseHostFile(source, content, options={}) {
     while (currentNode) {
         let urlPattern = currentNode.getElementsByTagName("urlpattern")[0];
         let searchPattern = currentNode.getElementsByTagName("searchpattern")[0];
+        let errorPattern = currentNode.getElementsByTagName("errorpattern")[0];
+        let fileNamePattern = currentNode.getElementsByTagName("filenamepattern")[0];
 
         let urlRegexp = new RegExp(urlPattern.firstChild.data);
-        let searchExpr = searchPattern.firstChild.data;
-        let parseFunc = makeParseFunc(searchExpr);
+        let errorRegexp = errorPattern ? new RegExp(errorPattern.firstChild.data) : null;
+        let fileNameFunc = null;
+        if (fileNamePattern) {
+            fileNameFunc = makeFileNameFunc(
+                fileNamePattern.attributes.mode.value,
+                new RegExp(fileNamePattern.firstChild.data),
+                fileNamePattern.attributes.filename.value
+            );
+        }
 
+        let searchExpr = searchPattern.firstChild.data;
+        let parseFunc = makeParseFunc(searchExpr, errorRegexp);
         /*
         if (searchExpr.startsWith("function")) {
             let funcStr = "(function getFunc() { return " + searchExpr + "})();";
@@ -360,14 +442,21 @@ function parseHostFile(source, content, options={}) {
             id: currentNode.id,
             pattern: urlRegexp,
             parseFunc: parseFunc,
+            fileNameFunc: fileNameFunc,
             source: source,
             maxThreads: maxThreads
         };
 
         if (options.debug) {
             Object.assign(hoster, {
-               "searchpattern": searchPattern.textContent,
-               "urlpattern": urlPattern.textContent
+                "searchpattern": searchPattern.textContent,
+                "urlpattern": urlPattern.textContent,
+                "errorpattern": errorPattern ? errorPattern.textContent : null,
+                "filenamepattern": fileNamePattern ? {
+                    "pattern": fileNamePattern.textContent,
+                    "mode": fileNamePattern.attributes.mode.value,
+                    "filename": fileNamePattern.attributes.filename.value
+                } : {}
             });
         }
 
@@ -403,14 +492,17 @@ class LocalHostFile {
         return this.hosters;
     }
 
-    addHoster(id, urlpattern, searchpattern) {
+    addHoster(id, urlpattern, searchpattern, errorpattern, filenamepattern) {
         this.hosters[id] = {
             id: id,
             pattern: new RegExp(urlpattern),
             parseFunc: makeParseFunc(searchpattern),
+            fileNameFunc: makeFileNameFuncFromObject(filenamepattern),
             source: "storage://",
             urlpattern: urlpattern,
-            searchpattern: searchpattern
+            searchpattern: searchpattern,
+            errorpattern: errorpattern,
+            filenamepattern: filenamepattern
         };
 
         this.save();
@@ -462,6 +554,22 @@ class LocalHostFile {
         $host.appendChild($urlPattern);
         $host.appendChild($searchPattern);
 
+        if (hoster.errorpattern) {
+            let $errorPattern = doc.createElement("errorpattern");
+            $errorPattern.appendChild(document.createTextNode(hoster.errorpattern));
+
+            $host.appendChild($errorPattern);
+        }
+
+        if (isValidFileNamePattern(hoster.filenamepattern)) {
+            let $fileNamePattern = doc.createElement("filenamepattern");
+            $fileNamePattern.appendChild(document.createTextNode(hoster.filenamepattern.pattern));
+            $fileNamePattern.setAttribute("mode", hoster.filenamepattern.mode);
+            $fileNamePattern.setAttribute("filename", hoster.filenamepattern.filename);
+
+            $host.appendChild($fileNamePattern);
+        }
+
         return $host;
     }
 }
@@ -512,7 +620,7 @@ class Hosters {
                 );
             }
             catch (e) {
-                console.error("[hostfile] Error fetching hostfile: ", url);
+                console.error("[hostfile] Error fetching hostfile: ", url, e);
             }
         }
 
@@ -545,7 +653,9 @@ class Hosters {
                         id: hoster.id,
                         source: hoster.source,
                         urlpattern: hoster.urlpattern,
-                        searchpattern: hoster.searchpattern
+                        searchpattern: hoster.searchpattern,
+                        errorpattern: hoster.errorpattern,
+                        filenamepattern: hoster.filenamepattern
                     });
                 }
             }
@@ -566,18 +676,26 @@ class Hosters {
         await this.load(this.urls, {force: true});
     }
 
-    async testHoster(id, urlpattern, searchpattern, url) {
+    async testHoster(id, urlpattern, searchpattern, errorpattern, filenamepattern, url) {
         let hosters = new Hosters();
         await hosters.load(this.urls);
 
         let pattern = new RegExp(urlpattern);
         let patternMatches = url.match(pattern) !== null;
-        let parseFunc = makeParseFunc(searchpattern);
+
+        let errorRegex = null;
+        if (errorpattern) {
+            errorRegex = new RegExp(errorpattern);
+        }
+        
+        let parseFunc = makeParseFunc(searchpattern, errorRegex);
+        let fileNameFunc = makeFileNameFuncFromObject(filenamepattern);
 
         hosters.hosters[id] = {
             id: id,
             pattern: pattern,
             parseFunc: parseFunc,
+            fileNameFunc: fileNameFunc,
             temp: true
         };
 
@@ -680,6 +798,10 @@ class Hosters {
                     else {
                         let urlParts = parseResult.imgUrl.split("/");
                         fileName = urlParts[urlParts.length - 1].replace(/[^a-zA-Z0-9-_ .]/g, "_");
+                    }
+
+                    if (hoster.fileNameFunc !== null) {
+                        fileName = hoster.fileNameFunc(fileName, html);
                     }
 
                     return {

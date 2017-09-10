@@ -95,6 +95,10 @@
                 <el-col :offset="3" :span="21" class="buttons">
                     <el-button @click="addSourceRow">Add source</el-button>
                     <el-button @click="refreshHosters">Refresh</el-button>
+                    <span class="info">
+                        Only add hostfiles from sources you trust.
+                        Click <a href="***REMOVED***/faq/hostfiles">here</a> for more information.
+                    </span>
                 </el-col>
             </el-row>
 
@@ -147,6 +151,35 @@
                 </el-row>
 
                 <el-row type="flex" :gutter="20">
+                    <el-col :span="3">Error pattern</el-col>
+                    <el-col :span="21">
+                        <el-input v-model="currentHoster.errorpattern"></el-input>
+                    </el-col>
+                </el-row>
+
+                 <el-row type="flex" :gutter="20">
+                    <el-col :span="3">Filename pattern</el-col>
+
+                    <el-col :span="5">
+                        <el-select v-model="currentHoster.filenamepattern.mode"
+                                   @change="setFileNameMode"
+                                   placeholder="Mode"
+                                   style="width: 100%">
+                            <el-option :value="null" label="None">None</el-option>
+                            <el-option :disabled="true" value=""></el-option>
+                            <el-option value="filename" label="Filename">Filename</el-option>
+                            <el-option value="content" label="Content">Content</el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-input v-model="currentHoster.filenamepattern.pattern" placeholder="Regexp"></el-input>
+                    </el-col>
+                    <el-col :span=8>
+                        <el-input v-model="currentHoster.filenamepattern.filename" placeholder="Replace"></el-input>
+                    </el-col>
+                </el-row>
+
+                <el-row type="flex" :gutter="20">
                     <el-col :span="3">Test Url</el-col>
                     <el-col :span="21">
                         <el-input v-model="testUrl"></el-input>
@@ -164,7 +197,9 @@
                         <el-row type="flex" :gutter="20">
                             <el-col :span="3">Picture Url</el-col>
                             <el-col :span="21">
-                                <a :href="testResult.parseResult.imgUrl">{{ testResult.parseResult.imgUrl }}</a>
+                                <a :href="testResult.parseResult.imgUrl" target="_blank">
+                                    {{ testResult.parseResult.imgUrl }}
+                                </a>
                             </el-col>
                         </el-row>
                         <el-row type="flex" :gutter="20">
@@ -256,12 +291,20 @@
         data() {
             return {
                 "selectedHoster": "",
-                "currentHoster": {},
+                "currentHoster": this.getEmptyHoster(),
                 "testUrl": ""
             };
         },
 
         methods: {
+            getEmptyHoster() {
+                return {
+                    filenamepattern: {
+                        mode: null,
+                    }
+                }
+            },
+
             formatDate(row, column, ts) {
                 let date = new Date(ts);
 
@@ -342,14 +385,31 @@
                 return null;
             },
 
+            cloneHoster(hoster) {
+                let filenamepattern = Object.assign({}, hoster.filenamepattern);
+                let clonedHoster = Object.assign({}, hoster);
+                clonedHoster.filenamepattern = filenamepattern;
+
+                return clonedHoster;
+            },
+
             showHoster(hosterId) {
                 if (hosterId === "<new>") {
-                    this.currentHoster = {};
+                    this.currentHoster = this.getEmptyHoster();
                 }
                 else {
                     let hoster = this.getHoster(hosterId).hoster;
                     this.currentHoster = {};
                     Object.assign(this.currentHoster, hoster);
+                    if (!hoster.filenamepattern.mode) {
+                        this.$set(this.currentHoster.filenamepattern, "mode", null);
+                    }
+                }
+            },
+
+            setFileNameMode(mode) {
+                if (mode !== undefined) {
+                    this.currentHoster.filenamepattern.mode = mode;
                 }
             },
 
@@ -363,15 +423,15 @@
             },
 
             testHoster() {
-                let params = Object.assign({}, this.currentHoster);
+                let params = this.cloneHoster(this.currentHoster);
                 params["url"] = this.testUrl;
 
                 this.$emit("test-hoster", params);
             },
 
             saveHoster() {
-                let hoster = Object.assign({}, this.currentHoster);
-                this.currentHoster.source = "storage://"
+                let hoster = this.cloneHoster(this.currentHoster);
+                this.currentHoster.source = "storage://";
                 this.$emit("save-hoster", hoster);
             },
 
