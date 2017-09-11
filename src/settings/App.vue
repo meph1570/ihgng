@@ -430,6 +430,29 @@
             },
 
             testHoster() {
+                let assertValue = (field, v) => {
+                    if (!v) {
+                        alert(`${field} can't be empty`);
+                        throw new Error();
+                    }
+                };
+
+                const required = [
+                    ["Search pattern", this.currentHoster.searchpattern],
+                    ["Url pattern", this.currentHoster.urlpattern],
+                    ["Id", this.currentHoster.id],
+                    ["Test url", this.testUrl]
+                ];
+
+                try {
+                    for (const [label, value] of required) {
+                        assertValue(label, value);
+                    }
+                }
+                catch (e) {
+                    return;
+                }
+
                 let params = this.cloneHoster(this.currentHoster);
                 params["url"] = this.testUrl;
 
