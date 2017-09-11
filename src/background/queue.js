@@ -452,7 +452,6 @@ class DownloadList {
             }
 
             linkIndexes.forEach((index) => {
-                console.log("!!!", groupIdx, index);
                 this.cancel(this.shadowDownloads[groupIdx].links[index]);
             });
         }

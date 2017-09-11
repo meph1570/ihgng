@@ -1,97 +1,3 @@
-/*
-                let event = this.event;
-
-                //this.selection = {};
-                let selection = this.selection;
-                this.selection = {};
-
-                for (let k in selection) {
-                    this.selection[parseInt(k)] = true;
-                }
-
-                if (!event.shiftKey && !event.ctrlKey) {
-                    this.selection = {};
-                    //this.selection[this.lastSelected] = false;
-                    this.selection[nodeData.id] = true;
-                    nodeData.selected = true;
-                }
-
-                if (event.ctrlKey) {
-                    if (nodeData.id in this.selection) {
-                        delete(this.selection[nodeData.id]);
-                        //this.selection[nodeData.id] = false;
-                        nodeData.selected = false;
-                    }
-                    else {
-                        this.selection[nodeData.id] = true;
-                        nodeData.selected = true;
-                    }
-                }
-
-                if (event.shiftKey) {
-                    // Select from lastSelection to this
-
-                    let [fromId, toId] = [this.lastSelected, nodeData.id].sort((a,b) => a - b);
-                    let fromGroup = null;
-                    let toGroup = null;
-
-                    if (!(fromId in downloadList.linkIdToIndex)) {
-                        // Group
-                        fromGroup = fromId;
-                        fromId = downloadList.downloads[downloadList.groupIdToIndex[fromId]].links[0].id;
-                    }
-
-                    if (!(toId in downloadList.linkIdToIndex)) {
-                        let links = downloadList.downloads[downloadList.groupIdToIndex[toId] - 1].links;
-
-                        toGroup = toId;
-                        toId = links[links.length - 1].id;
-                    }
-
-                    let [srcGroupIdx, srcLinkIdx] = downloadList.linkIdToIndex[fromId];
-                    let [dstGroupIdx, dstLinkIdx] = downloadList.linkIdToIndex[toId];
-
-                    console.log("Shiftkey", fromId, toId, srcGroupIdx, srcLinkIdx, dstGroupIdx, dstLinkIdx);
-
-                    for (let i = srcGroupIdx; i <= dstGroupIdx; i++) {
-                        let group = downloadList.downloads[i];
-                        let startLinkIdx = srcGroupIdx === dstGroupIdx || i === srcGroupIdx ? srcLinkIdx : 0;
-                        let endLinkIdx = srcGroupIdx === dstGroupIdx || i === dstGroupIdx ? dstLinkIdx : group.links.length - 1;
-
-                        for (let j = startLinkIdx; j <= endLinkIdx; j++) {
-
-                            group.links[j].selected = true;
-                            this.selection[group.links[j].id] = true;
-                        }
-                        srcLinkIdx = 0;
-                    }
-
-                    for (let groupId of [fromGroup, toGroup]) {
-                        if (groupId) {
-                            this.selection[groupId] = true;
-                        }
-                    }
-                    console.log(this.selection);
-                }
-
-                this.lastSelected = nodeData.id;
-
-                let $root = treeNode.$root.$el;
-
-                $root.querySelectorAll(".el-tree-node__content.selected").forEach(
-                    (e) => e.classList.remove("selected")
-                );
-
-                for (let id in this.selection) {
-                    let $e = $root.querySelector("[data-id='" + id + "']");
-                    let $parent = $e.parentElement;
-                    $parent.classList.add("selected");
-                }
-
-                console.log(this.selection, this.lastSelected);
-                this.event = null;
- */
-
 
 class SelectionModel {
     constructor(groupCountGetter, itemCountGetter) {
@@ -170,8 +76,6 @@ class SelectionModel {
         let srcLinkIdx = this.lastItemIdx;
         let srcGroupIdx = this.lastGroupIdx;
 
-        console.log("selectRange", srcGroupIdx, srcLinkIdx, dstGroupIdx, dstLinkIdx);
-
         if ((srcGroupIdx === dstGroupIdx && srcLinkIdx > dstLinkIdx) || (srcGroupIdx > dstGroupIdx)) {
             let [tmpGroupIdx, tmpLinkIdx] = [srcGroupIdx, srcLinkIdx];
             [srcGroupIdx, srcLinkIdx] = [dstGroupIdx, dstLinkIdx];
@@ -196,9 +100,6 @@ class SelectionModel {
 
             srcLinkIdx = 0;
         }
-
-        console.log(this.selection);
-
         return this.selection;
     }
 
