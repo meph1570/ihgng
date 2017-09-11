@@ -135,9 +135,9 @@ function makeParseFunc(searchExpr, errorRegex) {
                     return error;
                 }
 
-                let src;
+                let element;
                 try {
-                    src = document.getElementById(picId).attributes.src.value;
+                    element = document.getElementById(picId);
                 }
                 catch (e) {
                     if (e instanceof SyntaxError) {
@@ -151,7 +151,7 @@ function makeParseFunc(searchExpr, errorRegex) {
                         throw e;
                     }
                 }
-                if (src === null) {
+                if (element === null) {
                     return {
                         imgUrl: null,
                         status: "ABORT",
@@ -159,9 +159,19 @@ function makeParseFunc(searchExpr, errorRegex) {
                     }
                 }
                 else {
-                    return {
-                        imgUrl: src,
-                        status: "OK"
+                    let url = element.attributes.src ? element.attributes.src.value : element.attributes.href.value;
+
+                    if (url) {
+                        return {
+                            imgUrl: url,
+                            status: "OK"
+                        }
+                    }
+                    else {
+                        return {
+                            imgUrl: null,
+                            status: "ABORT"
+                        }
                     }
                 }
             }
