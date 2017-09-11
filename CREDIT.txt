@@ -1,0 +1,16 @@
+Credit
+======
+
+Toolbar menu and context menu[1] except the toolbar icon are from the icomoon.io Free Pack by Keyamoon under the CC-BY 4.0 License
+
+https://github.com/Keyamoon/IcoMoon-Free
+https://icomoon.io/#preview-free
+
+[1]
+bin.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/173-bin.svg
+cog.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/149-cog.svg
+cross.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/272-cross.svg
+download.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/097-download.svg
+file-text.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/035-file-text.svg
+folder-download.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/052-folder-download.svg
+loop.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/302-loop.svg
