@@ -137,7 +137,7 @@ function makeParseFunc(searchExpr, errorRegex) {
 
                 let src;
                 try {
-                    src = document.getElementById(picId).attributes.src.value;
+                    src = document.getElementById(picId);
                 }
                 catch (e) {
                     if (e instanceof SyntaxError) {
@@ -160,7 +160,7 @@ function makeParseFunc(searchExpr, errorRegex) {
                 }
                 else {
                     return {
-                        imgUrl: src,
+                        imgUrl: src.attributes.src.value,
                         status: "OK"
                     }
                 }
