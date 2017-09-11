@@ -6,15 +6,16 @@ import {DownloadList} from "./queue";
 import {getPanelTab, handleMenu, openLinkSelect, openPanel} from "./ui"
 
 const DEFAULT_CONFIG = {
-    "hostfiles": [
+    hostfiles: [
         {
             url: HOSTFILE_DEFAULT_URL,
             enabled: true
         }
     ],
-    "debug": true,
-    "hideThumbs": false,
-    "threads": 4
+    debug: true,
+    hideThumbs: false,
+    contextMenuEnabled: false,
+    threads: 4
 };
 
 
@@ -253,7 +254,6 @@ function collectLinks(start) {
 
 browser.runtime.onMessage.addListener(handleMessage);
 browser.menus.onClicked.addListener((info, tab) => {
-    console.log(info, tab);
     handleMenu(window, info.menuItemId, false);
 });
 

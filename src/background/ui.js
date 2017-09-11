@@ -69,30 +69,6 @@ function openLinkSelect(links) {
         action: "set-links",
         links: links
     });
-
-    /*
-    browser.tabs.create({url: panelUrl, active: true}).then(
-        (tab) => {
-            let sendLinks = () => browser.tabs.sendMessage(tab.id, {
-                links: links
-            });
-
-            if (tab.status !== "complete") {
-                let listener = function (tabId, changeInfo, tab) {
-                    if (changeInfo.status === "complete") {
-                        sendLinks();
-                        browser.tabs.onUpdated.removeListener(listener);
-
-                    }
-                };
-                browser.tabs.onUpdated.addListener(listener);
-            }
-            else if (tab.status === "complete") {
-                sendLinks();
-            }
-
-        }
-    );*/
 }
 
 function handleMenu(ihg, id, shiftKey) {
