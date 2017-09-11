@@ -74,12 +74,20 @@ function getPageDOM(url) {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.onload = function (e) {
-            let html = this.response;
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(html, "text/html");
-            resolve({document: doc, html: html});
+            if (e.target.status === 200) {
+                let html = this.response;
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, "text/html");
+                resolve({document: doc, html: html});
+            }
+            else {
+                reject({httpStatus: e.target.status});
+            }
         };
-        xhr.onerror = () => reject();
+        xhr.onerror = (e) => {
+            console.debug("[download] Can't fetch", url, e);
+            reject(e);
+        };
         xhr.send();
     });
 }
@@ -687,29 +695,41 @@ class Hosters {
         if (errorpattern) {
             errorRegex = new RegExp(errorpattern);
         }
-        
-        let parseFunc = makeParseFunc(searchpattern, errorRegex);
-        let fileNameFunc = makeFileNameFuncFromObject(filenamepattern);
 
-        hosters.hosters[id] = {
-            id: id,
-            pattern: pattern,
-            parseFunc: parseFunc,
-            fileNameFunc: fileNameFunc,
-            temp: true
-        };
-
+        let result = null;
         let log = [];
-        console.xlog = (s) => {
-            if (s instanceof Object) {
-                s = JSON.stringify(s, null, 4);
+
+        if (patternMatches) {
+            let parseFunc = makeParseFunc(searchpattern, errorRegex);
+            let fileNameFunc = makeFileNameFuncFromObject(filenamepattern);
+
+            hosters.hosters[id] = {
+                id: id,
+                pattern: pattern,
+                parseFunc: parseFunc,
+                fileNameFunc: fileNameFunc,
+                temp: true
+            };
+
+
+            console.xlog = (s) => {
+                if (s instanceof Object) {
+                    s = JSON.stringify(s, null, 4);
+                }
+                log.push(s.toString());
+            };
+
+            result = await hosters.getDownloadUrl(url, {debug: true});
+            // TODO
+            if (!result) {
+                throw new Error();
             }
-            log.push(s.toString());
-        };
 
-        let result = await hosters.getDownloadUrl(url, {debug: true});
-
-        console.xlog = null;
+            console.xlog = null;
+        }
+        else {
+            throw new HosterError("Pattern doesn't match");
+        }
 
         return {
             parseResult: result,
@@ -770,12 +790,19 @@ class Hosters {
             let iterations = 0;
 
             while (iterations < 16) {
-                let {document, html} = await getPageDOM(currentUrl);
+                let result;
+
+                try {
+                    result = await getPageDOM(currentUrl);
+                }
+                catch (e) {
+                    return {imgUrl: null, error: e, fileName: null};
+                }
+
+                let {html, document} = result;
 
                 let parseResult = hoster.parseFunc(document)(html, currentUrl);
                 iterations++;
-
-
 
                 if (debug) {
                     console.log("[hoster] getDownloadUrl", iterations, parseResult);

@@ -258,7 +258,7 @@ function download(url, filename, progress, success, failure) {
     };
 
     xhr.onerror = function (e) {
-        alert("Error " + e.target.status + " occurred while receiving the document.");
+        console.debug("[download] Error fetching", url, e);
         failure({
             httpStatus: e.target.status
         });

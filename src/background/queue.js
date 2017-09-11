@@ -276,6 +276,11 @@ class DownloadList {
 
                     this.hosters.getDownloadUrl(backupLink.url, {debug: false}).then(
                         (result) => {
+                            if (result.imgUrl === null) {
+                                setError(this.getLinks(backupLink.id), result.error);
+                                delete(this.downloading[backupLink.id]);
+                                return;
+                            }
                             let xhr = download(
                                 result.imgUrl,
                                 result.fileName,
