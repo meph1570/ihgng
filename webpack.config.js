@@ -6,7 +6,8 @@ module.exports = {
         panel: "./src/panel/main.js",
         link_select: "./src/link_select/main.js",
         settings: "./src/settings/main.js",
-        background: "./src/background/main.js"
+        background: "./src/background/main.js",
+        popup: "./src/popup/popup.js"
     },
     output: {
         path: path.resolve(__dirname, './addon/'),
