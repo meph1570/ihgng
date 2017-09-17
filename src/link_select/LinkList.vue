@@ -38,6 +38,7 @@
                     <a :href=scope.row.url target="_blank">
                         <i class=" el-icon-document"></i>
                     </a>
+                    <i v-if="scope.row.dupe" class="el-icon-warning" title="Link already downloaded or in queue"></i>
                 </template>
             </el-table-column>
         </el-table>
@@ -76,7 +77,9 @@
             let idx = 0;
             for (let link of this.links) {
                 link.index = idx++;
-                this.$refs.multipleTable.toggleRowSelection(link);
+                if (!link.dupe) {
+                    this.$refs.multipleTable.toggleRowSelection(link);
+                }
             }
 
             document.addEventListener(
@@ -196,6 +199,4 @@
     .link-table {
         -moz-user-select: none;
     }
-    
-    
 </style>

@@ -39,6 +39,13 @@
                 </el-col>
             </el-row>
 
+            <el-row type="flex" :gutter="20">
+                <el-col :span="3">Dupe checking</el-col>
+                <el-col :span="21">
+                    <el-switch on-text="" off-text="" v-model="config.dupeDbEnabled"></el-switch>
+                </el-col>
+            </el-row>
+
             <div class="separator"></div>
 
             <el-row type="flex" :gutter="20">
