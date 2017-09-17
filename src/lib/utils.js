@@ -176,7 +176,8 @@ let states = {
     CANCELLED: "cancelled",
     DISABLED: "disabled",
     FINISHED: "finished",
-    PARSE: "parse"
+    PARSE: "parse",
+    DUPE: "dupe"
 };
 
 export {

@@ -1,6 +1,8 @@
 
 import {HOSTFILE_DEFAULT_URL} from "../lib/globals"
 
+import Dexie from "dexie";
+
 import {Hosters} from "./hostfile";
 import {DownloadList} from "./queue";
 import {getPanelTab, handleMenu, openLinkSelect, openPanel} from "./ui"
@@ -15,6 +17,7 @@ const DEFAULT_CONFIG = {
     debug: true,
     hideThumbs: false,
     contextMenuEnabled: false,
+    dupeDbEnabled: true,
     threads: 4
 };
 
@@ -22,6 +25,7 @@ const DEFAULT_CONFIG = {
 class IHGng {
     constructor() {
         this.hosters = new Hosters();
+        this.db = null;
         this.downloadList = new DownloadList(this.hosters);
         this.downloadList.onPauseChanged = (paused) => this.onPause(paused);
         //this.downloadList.test();
@@ -63,6 +67,10 @@ class IHGng {
         if (this.config.contextMenuEnabled) {
             this.createContextMenu();
         }
+
+        if (this.config.dupeDbEnabled) {
+            this.initDatabase()
+        }
     }
 
     changeConfig(newConfig) {
@@ -75,11 +83,28 @@ class IHGng {
             this.createContextMenu();
         }
 
+        if (this.config.dupeDbEnabled && !newConfig.dupeDbEnabled) {
+            this.db = null;
+        }
+        else if (!this.config.dupeDbEnabled && newConfig.dupeDbEnabled) {
+            this.initDatabase();
+        }
+
         Object.assign(this.config, newConfig);
 
         this.hosters.maxConnections = newConfig.threads;
 
         browser.storage.local.set({config: newConfig});
+    }
+
+    initDatabase() {
+        this.db = new Dexie();
+        this.db.version(1).stores({
+            urls: `&url, *ts`
+        });
+        this.db.open().catch((e) => {
+            console.error("[db] Can't open dupedb");
+        });
     }
 
     createContextMenu() {
@@ -114,7 +139,7 @@ class IHGng {
 
 
 
-function handleMessage(request, sender, sendResponse) {
+async function handleMessage(request, sender, sendResponse) {
     console.log("Message from the content script:", request, sender);
 
     if (request.action === "close") {
@@ -123,8 +148,16 @@ function handleMessage(request, sender, sendResponse) {
     else if (request.action === "links") {
         //let links = request.links.filter((link) => ihgng.hosters.getHosterForUrlOrRedirect(link.url));
         let links = request.links
-            .map((link) => { return { url: ihgng.hosters.getUrlOrRedirect(link.url), thumb: link.thumb }})
+            .map((link) => { return { url: ihgng.hosters.getUrlOrRedirect(link.url), thumb: link.thumb, dupe: false }})
             .filter((link) => { return link.url !== null });
+
+        if (ihgng.db !== null) {
+            let dupes = await ihgng.db.urls.where("url").anyOf(links.map((link) => link.url)).toArray();
+            let dupeMap = new Map(dupes.map((link) => [link.url, link.ts]));
+            links.forEach((link) => {
+                link.dupe = dupeMap.has(link.url);
+            })
+        }
 
         if (!links.length) {
             sendResponse({action: "no_links"});
@@ -132,7 +165,16 @@ function handleMessage(request, sender, sendResponse) {
         }
 
         if (request.start) {
-            console.log("Filtering links");
+            if (ihgng.db !== null) {
+                let urls = links.map((link) => ({url: link.url, ts: new Date().getTime()}));
+                try {
+                    ihgng.db.urls.bulkPut(urls);
+                }
+                catch (e) {
+                    console.error("[db] Can't insert links:", e);
+                }
+            }
+
             console.debug("Starting", links);
             try {
                 ihgng.downloadList.addLinks(sender.tab.title, links, {start: true});

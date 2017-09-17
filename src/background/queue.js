@@ -156,8 +156,11 @@ class DownloadList {
         for (let link of links) {
 
             let linkObj = new Link(this.nextId(), link.url);
-            if (options.start) {
+            if (options.start && !link.dupe) {
                 linkObj.setState(states.WAITING);
+            }
+            else if (link.dupe) {
+                linkObj.setState(states.DUPE);
             }
             else {
                 linkObj.setState(states.DISABLED);
