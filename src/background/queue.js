@@ -195,6 +195,8 @@ class DownloadList {
             this.onAddLinks(group);
         }
 
+        this.persist();
+
         return group;
     }
 
@@ -250,6 +252,8 @@ class DownloadList {
         if (this.paused) {
             return;
         }
+
+        this.persist();
 
         for (let groupIdx in Object.keys(this.shadowDownloads)) {
             let backupGroup = this.shadowDownloads[groupIdx];
@@ -475,14 +479,14 @@ class DownloadList {
 
     persist() {
         browser.storage.local.set({
-            downloadList: JSON.stringify(this.shadowDownloads)
+            downloads: JSON.stringify(this.shadowDownloads)
         });
     }
 
     load() {
-        browser.storage.local.get("downloadList").then((result) => {
-            if (result.downloadList) {
-                let groups = JSON.parse(result.downloadList);
+        browser.storage.local.get("downloads").then((result) => {
+            if (result.downloads) {
+                let groups = JSON.parse(result.downloads);
 
                 for (let group of groups) {
                     let addedGroup = this.addLinks(group.title, group.links, {start: false});

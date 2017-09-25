@@ -28,7 +28,7 @@ class IHGng {
         this.db = null;
         this.downloadList = new DownloadList(this.hosters);
         this.downloadList.onPauseChanged = (paused) => this.onPause(paused);
-        //this.downloadList.test();
+        this.downloadList.load();
 
         this.config = null;
 
