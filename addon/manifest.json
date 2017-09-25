@@ -1,10 +1,17 @@
 {
     "manifest_version": 2,
-    "name": "ImagehostGrabber WebExt",
-    "version": "0.0",
 
-    "description": "Foo",
-    "homepage_url": "http://ihgng.cpc.to/",
+    "name": "ImagehostGrabber WebExt",
+    "version": "0.1.0",
+
+    "applications": {
+        "gecko": {
+            "id": "ihgng@meph1570.github.io"
+        }
+    },
+
+    "description": "A WebExtension-compatible alternative to IHG to batch download images from popular file hosters",
+    "homepage_url": "http://meph1570.github.io/ihgng",
 
     "permissions": [
         "activeTab",
@@ -20,13 +27,12 @@
 
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
 
-
     "browser_action": {
         "browser_style": true,
         "default_title": "Download with IHGng",
         "default_icon": "icons/download.png",
         "default_popup": "popup/popup.html"
-},
+    },
 
     "background": {
         "page": "background/background.html"
