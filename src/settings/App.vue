@@ -111,7 +111,7 @@
                     <el-button @click="refreshHosters">Refresh</el-button>
                     <span class="info">
                         Only add hostfiles from sources you trust.
-                        Click <a href="***REMOVED***/faq/hostfiles">here</a> for more information.
+                        Click <a href="https://meph1570.github.io/faq/hostfiles.html">here</a> for more information.
                     </span>
                 </el-col>
             </el-row>
