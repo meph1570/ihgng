@@ -13,7 +13,7 @@ Vue.component("link-list", LinkList);
 
 
 browser.runtime.onMessage.addListener((message) => {
-    console.log("Message for link_select:", message.links);
+    console.debug("[link-select] Message received", message.links);
 
     if (message.action === "set-links") {
         new Vue({
