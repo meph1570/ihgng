@@ -220,6 +220,7 @@ async function handleMessage(request, sender, sendResponse) {
                 });
             },
             (e) => {
+                console.debug("[test-hoster]", e);
                 browser.tabs.sendMessage(sender.tab.id, {
                     action: "test-hoster",
                     result: {

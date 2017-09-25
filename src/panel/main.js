@@ -22,10 +22,9 @@ let vm = new Vue({
         paused: false
     }
 });
-console.log(vm);
 
 browser.runtime.onMessage.addListener((message) => {
-    console.log("Message for panel:", message);
+    console.debug("[panel] Message received", message);
     if (message.action === "pause-changed") {
         vm.$data.paused = message.paused;
     }

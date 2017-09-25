@@ -298,7 +298,7 @@
         },
 
         mounted() {
-            console.log("Settings mounted", this);
+            console.debug("[settings] Mounted", this);
             this.applySelection();
         },
 

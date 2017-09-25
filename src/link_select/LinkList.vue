@@ -70,7 +70,7 @@
         },
 
         mounted() {
-            console.log("mounted this", this);
+            console.debug("[link-select] Mounted", this);
 
             this.thumbsEnabled = !this.hideThumbs;
 

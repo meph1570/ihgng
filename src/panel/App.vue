@@ -98,7 +98,7 @@
         },
 
         mounted() {
-
+            console.debug("[panel] Mounted", this);
         },
 
         event: null,

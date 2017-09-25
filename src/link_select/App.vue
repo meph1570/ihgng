@@ -37,7 +37,6 @@
             },
 
             queueDownloads() {
-                console.log(this);
                 let selectedLinks = this.$refs.linkList.selectedLinks;
                 let links = [];
                 // de-vue-ify to handle of to background script

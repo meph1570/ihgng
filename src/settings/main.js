@@ -114,7 +114,7 @@ getConfig().then(
 
 
 browser.runtime.onMessage.addListener((message) => {
-    console.log("Message for 'settings':", message);
+    console.debug("[settings] Message received", message);
 
     if (message.action === "config") {
 
