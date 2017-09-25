@@ -72,6 +72,8 @@
         mounted() {
             console.log("mounted this", this);
 
+            this.thumbsEnabled = !this.hideThumbs;
+
             this.$el.querySelector("div.el-table").classList.remove("el-table--enable-row-hover");
 
             let idx = 0;
@@ -98,7 +100,8 @@
         },
 
         props: {
-            "links": {type: Array}
+            links: {type: Array},
+            hideThumbs: {type: Boolean}
         },
 
         components: { contextMenu },

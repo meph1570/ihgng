@@ -198,7 +198,7 @@ async function handleMessage(request, sender, sendResponse) {
             console.debug("Done");
         }
         else {
-            openLinkSelect(links);
+            openLinkSelect(links, ihgng.config.hideThumbs);
         }
     }
     else if (request.action === "test-hoster") {

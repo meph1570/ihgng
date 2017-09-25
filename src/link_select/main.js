@@ -20,10 +20,14 @@ browser.runtime.onMessage.addListener((message) => {
             el: '#app',
             render: function (h) {
                 console.log("render", this.links);
-                return h(App, {props: {links: this.links}});
+                return h(App, {props: {
+                    links: this.links,
+                    hideThumbs: this.hideThumbs
+                }});
             },
             data: {
-                links: message.links
+                links: message.links,
+                hideThumbs: message.hideThumbs
             },
             propsData: {
                 links: message.links

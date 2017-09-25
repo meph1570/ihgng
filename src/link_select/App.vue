@@ -3,7 +3,7 @@
         <h1>Select links to download</h1>
         <el-row>
             <el-col :span="24">
-                <link-list ref="linkList" :links=links></link-list>
+                <link-list ref="linkList" :hideThumbs=hideThumbs :links=links></link-list>
             </el-col>
         </el-row>
         <el-row id="buttons" justify="end">
@@ -19,7 +19,8 @@
     export default {
         name: "app",
         props: {
-            "links": {type: Array}
+            "links": {type: Array},
+            "hideThumbs": {type: Boolean}
         },
 
         data() {
