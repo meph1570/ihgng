@@ -402,6 +402,25 @@
         text-align: center;
     }
 
+    .file-size {
+        margin-left: 4px;
+    }
+
+    .node-extra {
+        width: 6em;
+        text-align: center;
+    }
+
+    #context-menu img {
+        vertical-align: text-top;
+        margin-right: 6px;
+        opacity: 0.5;
+    }
+
+    #context-menu .ctx-item:hover img {
+        opacity: 1;
+    }
+
     /*
     #app {
         font-family: 'Avenir', Helvetica, Arial, sans-serif;
