@@ -81,7 +81,7 @@ if (process.env.NODE_ENV === 'production') {
             HOSTFILE_URL: JSON.stringify(require("./globals.json").PRODUCTION.HOSTFILE_URL)
         }),
         new webpack.optimize.UglifyJsPlugin({
-            sourceMap: true,
+            sourceMap: false,
             compress: {
                 warnings: false
             }
