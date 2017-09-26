@@ -1,6 +1,6 @@
 /**
  *
- * @source: global.js
+ * @source: lib/globals.js
  *
  * @licstart
  *
