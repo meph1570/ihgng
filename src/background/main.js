@@ -324,6 +324,9 @@ browser.runtime.onMessage.addListener(handleMessage);
 browser.menus.onClicked.addListener((info, tab) => {
     handleMenu(window, info.menuItemId, false);
 });
+browser.notifications.onClicked.addListener(() => {
+    openPanel();
+});
 
 // Expose necessary objects for content scripts
 window.ihgng = new IHGng();
