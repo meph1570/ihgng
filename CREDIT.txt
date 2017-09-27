@@ -14,3 +14,5 @@ download.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/097-dow
 file-text.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/035-file-text.svg
 folder-download.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/052-folder-download.svg
 loop.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/302-loop.svg
+play.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/286-pause2.svg
+pause.svg -> https://github.com/Keyamoon/IcoMoon-Free/blob/master/SVG/285-play3.svg
