@@ -474,6 +474,8 @@ class DownloadList {
                 this.linkIdToIndex[link.id] = [groupIndex, linkIndex];
             });
         });
+
+        this.persist();
     }
 
     cancelIndexes(groups) {
@@ -488,6 +490,7 @@ class DownloadList {
                 this.cancel(this.shadowDownloads[groupIdx].links[index]);
             });
         }
+        this.persist();
     }
 
     resumeIndexes(groups) {
@@ -501,6 +504,9 @@ class DownloadList {
                 this.resume(this.shadowDownloads[groupIdx].links[index]);
             });
         }
+        this.persist();
+    }
+
     clear() {
         let allGroups = {};
         this.shadowDownloads.forEach((group, index) => {
