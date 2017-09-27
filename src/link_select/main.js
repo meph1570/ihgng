@@ -45,7 +45,6 @@ browser.runtime.onMessage.addListener((message) => {
         new Vue({
             el: '#app',
             render: function (h) {
-                console.log("render", this.links);
                 return h(App, {props: {
                     links: this.links,
                     hideThumbs: this.hideThumbs

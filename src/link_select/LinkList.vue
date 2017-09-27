@@ -169,7 +169,6 @@
             },
 
             handleContextMenu(row, event) {
-                console.log(row, event, this);
                 if (!this.selectionModel.isSelected(0, row.index)) {
                     this.clearSelection();
                     this.selectionModel.selectSingle(0, row.index);

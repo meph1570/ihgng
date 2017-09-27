@@ -318,7 +318,6 @@ class DownloadList {
                                 result.imgUrl,
                                 result.fileName,
                                 (event) => {
-                                    console.log(event);
                                     const links = this.getLinks(backupLink.id);
                                     this.setProgress(links, event.loaded, event.total);
                                     this.setState(links, states.DOWNLOADING);
@@ -435,7 +434,6 @@ class DownloadList {
     removeIndexes(indexesToDelete) {
         let groupIndexes = Object.keys(indexesToDelete).sort((a, b) => b - a);
 
-        console.log(groupIndexes);
         for (let groupIdx of groupIndexes) {
             let linkIndexes = indexesToDelete[groupIdx];
             if (linkIndexes === null) {
@@ -479,7 +477,6 @@ class DownloadList {
     }
 
     cancelIndexes(groups) {
-        console.log(groups);
         for (let groupIdx of Object.keys(groups)) {
             let linkIndexes = groups[groupIdx];
             if (linkIndexes === null) {
