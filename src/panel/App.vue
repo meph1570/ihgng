@@ -184,8 +184,6 @@
             },
 
             contextMenuRequested(event) {
-                console.log(event);
-
                 let e = event.target;
                 let $row = e.closest(".tree-node");
 

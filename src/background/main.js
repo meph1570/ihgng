@@ -165,7 +165,7 @@ class IHGng {
 
 
 async function handleMessage(request, sender, sendResponse) {
-    console.log("Message from the content script:", request, sender);
+    console.log("[main] Message received", request);
 
     if (request.action === "close") {
         browser.tabs.remove(sender.tab.id);
@@ -304,8 +304,6 @@ async function handleMessage(request, sender, sendResponse) {
 
 function collectLinks(start) {
     browser.tabs.query({active: true}).then((tabs) => {
-        console.log(tabs);
-
         const tabId = tabs[0].id;
         browser.tabs.executeScript(tabId, {
             file: "/content_scripts/collect_links.js",
