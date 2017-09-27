@@ -20,24 +20,6 @@
 
 <template>
     <div id="app">
-        <el-row id="controls">
-            <el-col :span="24">
-                <el-button @click="unpauseDownloads" v-if="paused">
-                    <img class="icon" src="/icons/285-play3.svg" alt="" />
-                    Start
-                </el-button>
-                <el-button @click="pauseDownloads" v-if="!paused">
-                    <img class="icon" src="/icons/286-pause2.svg" alt="" />
-                    Pause
-                </el-button>
-                <el-button @click="removeDownloads">
-                    Remove
-                </el-button>
-                <el-button @click="cancelDownloads">
-                    Cancel
-                </el-button>
-            </el-col>
-        </el-row>
         <el-row id="tree-holder">
             <el-col :span="24">
                 <div @contextmenu.prevent="contextMenuRequested($event)">
@@ -54,6 +36,23 @@
                     >
                     </el-tree>
                 </div>
+            </el-col>
+        </el-row>
+
+        <el-row id="controls">
+            <el-col :span="24">
+                <el-button @click="unpauseDownloads" v-if="paused">
+                    <img class="icon" src="/icons/play.svg" alt="" />
+                    Start
+                </el-button>
+                <el-button @click="pauseDownloads" v-if="!paused">
+                    <img class="icon" src="/icons/pause.svg" alt="" />
+                    Pause
+                </el-button>
+                <el-button @click="removeAllDownloads" v-if="!paused">
+                    <img class="icon" src="/icons/bin.svg" alt="" />
+                    Clear list
+                </el-button>
             </el-col>
         </el-row>
 
@@ -138,6 +137,12 @@
 
             unpauseDownloads() {
                 downloadList.unpause();
+            },
+
+            removeAllDownloads() {
+                if (confirm("Are you sure?")) {
+                    downloadList.clear();
+                }
             },
 
             groupSelection() {
@@ -441,31 +446,11 @@
         opacity: 1;
     }
 
-    /*
-    #app {
-        font-family: 'Avenir', Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-align: center;
-        color: #2c3e50;
-        margin-top: 60px;
+    #controls {
+        margin-top: 1em;
     }
 
-    h1, h2 {
-        font-weight: normal;
+    #controls button {
+        margin-left: 0;
     }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    li {
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    a {
-        color: #42b983;
-    }*/
 </style>

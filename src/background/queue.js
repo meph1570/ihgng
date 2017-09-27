@@ -501,6 +501,12 @@ class DownloadList {
                 this.resume(this.shadowDownloads[groupIdx].links[index]);
             });
         }
+    clear() {
+        let allGroups = {};
+        this.shadowDownloads.forEach((group, index) => {
+            allGroups[index] = null;
+        });
+        this.removeIndexes(allGroups);
     }
 
     persist() {
