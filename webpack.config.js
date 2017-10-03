@@ -7,7 +7,8 @@ module.exports = {
         link_select: "./src/link_select/main.js",
         settings: "./src/settings/main.js",
         background: "./src/background/main.js",
-        popup: "./src/popup/popup.js"
+        popup: "./src/popup/popup.js",
+        worker: "./src/worker/main.js"
     },
     output: {
         path: path.resolve(__dirname, './addon/'),

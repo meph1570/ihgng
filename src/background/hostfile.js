@@ -140,17 +140,10 @@ function makeParseFunc(searchExpr, errorRegex) {
 
     if (searchExpr.startsWith("function")) {
         let funcStr = "(function getFunc() { return " + searchExpr + "})();";
-        let func = null;
-        try {
-            func = eval(funcStr);
-        } catch (e) {
-            func = null;
-            errors++;
-            console.error("Hoster invalid:", currentNode.id);
-        }
-        parseFunc = function (document) {
-            return func
-        }
+        parseFunc = function () {
+            return funcStr;
+        };
+        parseFunc.sandboxed = true;
     }
     else if (searchExpr.startsWith('"ID:')) {
         let picId = searchExpr.match(/"ID: (.+)"/)[1];
@@ -518,6 +511,43 @@ class Hosters {
 
         this.localHostFile = new LocalHostFile("");
         this.localHostFile.onSave = () => this.reloadLocalHostFile();
+
+        this.worker = new Worker("/worker/index.js");
+        this.worker.onmessage = this.onWorkerMessage.bind(this);
+        this.worker.onerror = this.onWorkerError.bind(this);
+        this.workerResults = new Map();
+
+        this.callId = 0;
+
+    }
+
+    onWorkerMessage(e) {
+        let [callId, parseResult] = e.data;
+
+        this.workerResults.get(callId).resolve(parseResult);
+        this.resetWorkerResult(callId);
+    }
+
+    onWorkerError(e) {
+        if (e.callId) {
+            console.error("[hoster] Worker failed:", e);
+            if (this.workerResults.has(e.callId)) {
+                this.workerResults.get(e.callId).reject(e);
+                this.resetWorkerResult(e.callId);
+            }
+            else {
+                console.warn("[hoster] Worker failed, callId not in workerResults");
+            }
+        }
+        else {
+            if (this.workerResults.size) {
+                console.warn("[hoster] Worker failed, no callId supplied", e);
+            }
+        }
+    }
+
+    resetWorkerResult(callId) {
+        this.workerResults.delete(callId);
     }
 
     parse(url, content, options) {
@@ -717,7 +747,26 @@ class Hosters {
 
                 let {html, document} = result;
 
-                let parseResult = hoster.parseFunc(document)(html, currentUrl);
+                let parseResult;
+                if (hoster.parseFunc.sandboxed) {
+                    let callId = this.callId++;
+
+                    let parsing = new Promise((resolve, reject) => {
+                        this.worker.postMessage([hoster.parseFunc(), html, currentUrl, callId]);
+                        this.workerResults.set(callId, {resolve, reject});
+                    });
+
+                    try {
+                        parseResult = await parsing;
+                    }
+                    catch (e) {
+                        throw new HosterError(`Hoster ${hoster.id} failed. Sandboxed execution error`, e);
+                    }
+                }
+                else {
+                    parseResult = hoster.parseFunc(document)(html, currentUrl);
+                }
+
                 iterations++;
 
                 if (debug) {
