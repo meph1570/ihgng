@@ -144,11 +144,22 @@ function humanFileSize(size) {
 
 
 function urlJoin(part1, part2) {
-    let rgxHost = /(https?:\/\/[^/]+)/;
-    let baseUrl = part1.match(rgxHost)[1];
-    if (!part2.startsWith("/")) {
-        baseUrl += "/";
+    let baseUrl;
+    const urlParts = part1.split("/");
+
+    // Is a directory
+    if (part1.endsWith("/")) {
+        baseUrl = part1;
     }
+    else {
+        delete(urlParts[urlParts.length - 1]);
+        baseUrl = urlParts.join("/");
+    }
+
+    if (part2.startsWith("/")) {
+        baseUrl = part1.match(/(https?:\/\/[^/]+)/)[1];
+    }
+
     return baseUrl + part2;
 }
 
