@@ -188,8 +188,9 @@
                                    style="width: 100%">
                             <el-option :value="null" label="None">None</el-option>
                             <el-option :disabled="true" value=""></el-option>
-                            <el-option value="filename" label="Filename">Filename</el-option>
-                            <el-option value="content" label="Content">Content</el-option>
+                            <el-option value="filename" label="Filename"></el-option>
+                            <el-option value="content-regex" label="Content (regex)"></el-option>
+                            <el-option value="content-queryselector" label="Content (queryselector)"></el-option>
                         </el-select>
                     </el-col>
                     <el-col :span="8">

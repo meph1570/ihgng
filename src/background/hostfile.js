@@ -280,21 +280,59 @@ function makeParseFunc(searchExpr, errorRegex) {
 }
 
 
-function makeFileNameFunc(mode, regex, replace) {
-    return function (filename, pageData) {
+function assertRegex(thing, regex) {
+    if (regex === null) {
+        throw new HosterError("Invalid regex");
+    }
+    if (!thing.match(regex)) {
+        console.error("[hostfile] Regex didn't match for thing", thing, regex);
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+
+function makeFileNameFunc(mode, pattern, replace) {
+    let regex = null;
+    try {
+        regex = new RegExp(pattern);
+    }
+    catch (e) {
+    }
+
+    return function (filename, pageData, document) {
         let thing = mode === "filename" ? filename : pageData;
 
-        if (!thing.match(regex)) {
-            console.debug("[hostfile] No match", {mode, thing, regex, replace});
-            return filename;
-        }
-
         if (mode === "filename") {
+            if (!assertRegex(filename, regex)) {
+                return filename;
+            }
+
             return filename.replace(regex, replace);
         }
-        else if (mode === "content") {
+        else if (mode === "content" || mode === "content-regex") {
+            if (!assertRegex(pageData, regex)) {
+                return filename;
+            }
+
             let matches = pageData.match(regex);
             return replace.replace(/(\$(\d))/g, (m1, m2, index) => matches[index])
+        }
+        else if (mode === "content-queryselector") {
+            const node = document.querySelector(pattern);
+            if (node !== null) {
+                const text = node.textContent.match(/\s*(.+)\s*/)[1];
+                const filenameParts = filename.split(".");
+                const originalExtension = filenameParts[filenameParts.length - 1];
+
+                return replace.replace(/(\$ext)/, originalExtension).replace(/(\$match)/, text);
+            }
+            else {
+                console.error("[hostfile] Queryselector didn't match", pattern);
+                return filename;
+            }
         }
         else {
             console.error("[hostfile] Invalid filename mode");
@@ -317,7 +355,7 @@ function makeFileNameFuncFromObject(filenamepattern) {
         return null;
     }
 
-    return makeFileNameFunc(filenamepattern.mode, new RegExp(filenamepattern.pattern), filenamepattern.filename);
+    return makeFileNameFunc(filenamepattern.mode, filenamepattern.pattern, filenamepattern.filename);
 }
 
 
@@ -345,7 +383,7 @@ function parseHostFile(source, content, options={}) {
         if (fileNamePattern) {
             fileNameFunc = makeFileNameFunc(
                 fileNamePattern.attributes.mode.value,
-                new RegExp(fileNamePattern.firstChild.data),
+                fileNamePattern.firstChild.data,
                 fileNamePattern.attributes.filename.value
             );
         }
@@ -793,7 +831,7 @@ class Hosters {
                     }
 
                     if (hoster.fileNameFunc !== null) {
-                        fileName = hoster.fileNameFunc(fileName, html);
+                        fileName = hoster.fileNameFunc(fileName, html, document);
                     }
 
                     return {
