@@ -789,7 +789,7 @@ class Hosters {
                     }
                     else {
                         let urlParts = parseResult.imgUrl.split("/");
-                        fileName = urlParts[urlParts.length - 1].replace(/[^a-zA-Z0-9-_ .]/g, "_");
+                        fileName = decodeURI(urlParts[urlParts.length - 1]).replace(/[^a-zA-Z0-9-_ .]/g, "_");
                     }
 
                     if (hoster.fileNameFunc !== null) {
