@@ -87,6 +87,7 @@ getConfig().then(
                 return h(App, {
                     props: {
                         config: this.config,
+                        localHostFile: this.localHostFile,
                         testResult: this.testResult
                     },
                     on: {
@@ -124,6 +125,11 @@ getConfig().then(
                                 action: "save-config",
                                 config: params.config
                             })
+                        },
+                        "get-local-hostfile": () => {
+                            browser.runtime.sendMessage({
+                                action: "get-local-hostfile"
+                            });
                         }
                     },
                     ref: "settings"
@@ -131,6 +137,7 @@ getConfig().then(
             },
             data: {
                 config: config,
+                localHostFile: "",
                 testResult: {}
             }
         });
@@ -167,5 +174,8 @@ browser.runtime.onMessage.addListener((message) => {
                 type: "success"
             });
         }
+    }
+    else if (message.action === "local-hostfile") {
+        vm.$data.localHostFile = message.content;
     }
 });

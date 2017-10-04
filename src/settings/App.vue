@@ -21,21 +21,7 @@
 <template>
     <div id="app">
         <h1>Settings</h1>
-        <!--<el-form ref="form" :model="config" label-width="250px">
-            <el-form-item label="Hide thumbnails">
-                <el-switch on-text="" off-text="" v-model="config.hideThumbs"></el-switch>
-            </el-form-item>
-            <el-form-item label="Enable debug mode">
-                <el-switch on-text="" off-text="" v-model="config.debug"></el-switch>
-            </el-form-item>
-            <el-form-item label="Max concurrent downloads">
-                <el-input-number v-model="config.threads" :min="1" :max="20"></el-input-number>
-            </el-form-item>
 
-            <el-form-item label="Last hostfile sync">
-
-            </el-form-item>
-        </el-form>-->
         <div id="options-box">
 
             <el-row type="flex" :gutter="20">
@@ -129,6 +115,7 @@
                 <el-col :offset="3" :span="21" class="buttons">
                     <el-button @click="addSourceRow">Add source</el-button>
                     <el-button @click="refreshHosters">Refresh</el-button>
+                    <el-button @click="showLocalHostFile">Show local hostfile</el-button>
                     <span class="info">
                         Only add hostfiles from sources you trust.
                         Click <a href="https://meph1570.github.io/faq/hostfiles.html">here</a> for more information.
@@ -295,6 +282,16 @@
             <el-button @click="cancel">Cancel</el-button>
         </div>
 
+        <el-dialog title="Local hostfile" :visible.sync="localHostFileDialogVisible">
+            <pre id="local-hostfile">
+                {{ localHostFile }}
+            </pre>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="hideLocalHostFile">Close</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -303,6 +300,7 @@
         name: "app",
         props: {
             "config": {type: Object},
+            "localHostFile": {type: String},
             "testResult": {type: Object}
         },
 
@@ -326,7 +324,8 @@
             return {
                 "selectedHoster": "",
                 "currentHoster": this.getEmptyHoster(),
-                "testUrl": ""
+                "testUrl": "",
+                "localHostFileDialogVisible": false
             };
         },
 
@@ -501,6 +500,15 @@
                 }
             },
 
+            hideLocalHostFile() {
+                this.localHostFileDialogVisible = false;
+            },
+
+            showLocalHostFile() {
+                this.$emit("get-local-hostfile");
+                this.localHostFileDialogVisible = true;
+            },
+
             saveSettings() {
                 let config = Object.assign({}, this.config);
                 this.$emit("save", {
@@ -559,6 +567,7 @@
         width: 98%;
     }
 
-    .el-col.buttons {
+    #local-hostfile {
+        overflow: scroll;
     }
 </style>

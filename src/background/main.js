@@ -295,6 +295,12 @@ async function handleMessage(request, sender, sendResponse) {
         ihgng.changeConfig(request.config);
         browser.tabs.remove(sender.tab.id);
     }
+    else if (request.action === "get-local-hostfile") {
+        browser.tabs.sendMessage(sender.tab.id, {
+            action: "local-hostfile",
+            content: ihgng.hosters.localHostFile.content
+        });
+    }
     else {
         console.error("Unknown action received: ", request);
         console.error("Sender: ", sender);
