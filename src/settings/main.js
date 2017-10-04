@@ -35,6 +35,28 @@ Vue.use(ElementUI);
 
 let vm;
 
+
+async function setLastSync(hostfiles) {
+    let storage = await browser.storage.local.get();
+
+    for (let key of Object.keys(storage)) {
+        let match = key.match(/hostfile:(.+)/);
+
+        if (match) {
+            let [prefix, url] = match;
+            let hostfile = storage[key];
+
+            for (let configHostFile of hostfiles) {
+                if (configHostFile.url === url) {
+                    configHostFile.lastSync = hostfile.lastSync;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
 async function getConfig() {
     let ihg = await browser.runtime.getBackgroundPage();
 
@@ -54,23 +76,7 @@ async function getConfig() {
         }
     }
 
-    let storage = await browser.storage.local.get();
-
-    for (let key of Object.keys(storage)) {
-        let match = key.match(/hostfile:(.+)/);
-
-        if (match) {
-            let [prefix, url] = match;
-            let hostfile = storage[key];
-
-            for (let configHostFile of config.hostfiles) {
-                if (configHostFile.url === url) {
-                    configHostFile.lastSync = hostfile.lastSync;
-                    break;
-                }
-            }
-        }
-    }
+    await setLastSync(config.hostfiles);
 
     // TODO: find out why this need a superclone
     config = JSON.parse(JSON.stringify(config));
@@ -174,6 +180,9 @@ browser.runtime.onMessage.addListener((message) => {
                 type: "success"
             });
         }
+
+        setLastSync(vm.$data.config.hostfiles).catch(console.error);
+
     }
     else if (message.action === "local-hostfile") {
         vm.$data.localHostFile = message.content;
