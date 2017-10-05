@@ -307,10 +307,10 @@
 
         watch: {
             "config.hostfiles": function (value) {
-                this.applySelection();
+                this.$nextTick(this.applySelection);
             },
-            "config.debug": function (debug) {
-                if (debug) {
+            "config.debug": function (debug, oldValue) {
+                if (debug && oldValue !== undefined) {
                     this.refreshHosters();
                 }
             }
@@ -318,7 +318,6 @@
 
         mounted() {
             console.debug("[settings] Mounted", this);
-            this.applySelection();
         },
 
         data() {

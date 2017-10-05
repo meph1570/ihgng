@@ -33,7 +33,66 @@ import App from './App.vue'
 
 Vue.use(ElementUI);
 
-let vm;
+let vm = new Vue({
+    el: '#app',
+    render: function (h) {
+        return h(App, {
+            props: {
+                config: this.config,
+                localHostFile: this.localHostFile,
+                testResult: this.testResult
+            },
+            on: {
+                "test-hoster": (params) => {
+                    browser.runtime.sendMessage({
+                        action: "test-hoster",
+                        params: params
+                    });
+                },
+                "save-hoster": (hoster) => {
+                    browser.runtime.sendMessage({
+                        action: "save-hoster",
+                        hoster: hoster
+                    });
+                },
+                "delete-hoster": (hosterId) => {
+                    browser.runtime.sendMessage({
+                        action: "delete-hoster",
+                        hosterId: hosterId
+                    })
+                },
+                "refresh-hosters": () => {
+                    browser.runtime.sendMessage({
+                        action: "refresh-hosters",
+                        feedback: true
+                    });
+                },
+                "cancel": () => {
+                    browser.runtime.sendMessage({
+                        action: "close"
+                    });
+                },
+                "save": (params) => {
+                    browser.runtime.sendMessage({
+                        action: "save-config",
+                        config: params.config
+                    })
+                },
+                "get-local-hostfile": () => {
+                    browser.runtime.sendMessage({
+                        action: "get-local-hostfile"
+                    });
+                }
+            },
+            ref: "settings"
+        });
+    },
+    data: {
+        config: {},
+        localHostFile: "",
+        testResult: {}
+    }
+});
 
 
 async function setLastSync(hostfiles) {
@@ -87,66 +146,7 @@ async function getConfig() {
 
 getConfig().then(
     (config) => {
-        vm = new Vue({
-            el: '#app',
-            render: function (h) {
-                return h(App, {
-                    props: {
-                        config: this.config,
-                        localHostFile: this.localHostFile,
-                        testResult: this.testResult
-                    },
-                    on: {
-                        "test-hoster": (params) => {
-                            browser.runtime.sendMessage({
-                                action: "test-hoster",
-                                params: params
-                            });
-                        },
-                        "save-hoster": (hoster) => {
-                            browser.runtime.sendMessage({
-                                action: "save-hoster",
-                                hoster: hoster
-                            });
-                        },
-                        "delete-hoster": (hosterId) => {
-                            browser.runtime.sendMessage({
-                                action: "delete-hoster",
-                                hosterId: hosterId
-                            })
-                        },
-                        "refresh-hosters": () => {
-                            browser.runtime.sendMessage({
-                                action: "refresh-hosters",
-                                feedback: true
-                            });
-                        },
-                        "cancel": () => {
-                            browser.runtime.sendMessage({
-                                action: "close"
-                            });
-                        },
-                        "save": (params) => {
-                            browser.runtime.sendMessage({
-                                action: "save-config",
-                                config: params.config
-                            })
-                        },
-                        "get-local-hostfile": () => {
-                            browser.runtime.sendMessage({
-                                action: "get-local-hostfile"
-                            });
-                        }
-                    },
-                    ref: "settings"
-                });
-            },
-            data: {
-                config: config,
-                localHostFile: "",
-                testResult: {}
-            }
-        });
+        vm.$data.config = config;
     },
     (e) => console.error("Can't fetch config: ", e)
 );
@@ -155,10 +155,7 @@ getConfig().then(
 browser.runtime.onMessage.addListener((message) => {
     console.debug("[settings] Message received", message);
 
-    if (message.action === "config") {
-
-    }
-    else if (message.action === "test-hoster") {
+    if (message.action === "test-hoster") {
         message.result.available = true;
         vm.$data.testResult = message.result;
     }
