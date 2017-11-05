@@ -1,0 +1,8 @@
+{
+    "PRODUCTION": {
+        "HOSTFILE_URL": "https://meph1570.github.io/ihgng/hostfiles/hostfile.xml"
+    },
+    "DEV": {
+        "HOSTFILE_URL": "http://localhost/hostf.xml"
+    }
+}
