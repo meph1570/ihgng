@@ -1,0 +1,31 @@
+
+var {
+    padding: .2rem .4rem;
+    font-size: 90%;
+    color: #fff;
+    background-color: #959595;
+    border-radius: .2rem;
+    font-style: normal;
+}
+
+dl {
+    margin: .5rem 2rem;
+    line-height: 1.1em;
+}
+
+dt {
+    margin-bottom: 0.1rem;
+}
+
+dd {
+    margin-bottom: 0.4rem;
+}
+
+dt em {
+    font-weight: bold;
+    font-style: normal;
+}
+
+.button.active {
+    font-weight: bold;
+}

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<hostfile encoding="utf-8">
+    <meta>
+        <date>2017-11-17T16:18:46.133264+00:00</date>
+        <generator>hostf.py 0.1.0</generator>
+        <minimum-ihg-version>0.0.0</minimum-ihg-version>
+    </meta>
+    <host id="abload">
+        <urlpattern>^http:\/\/www\.abload\.de\/image\.php\?img=</urlpattern>
+        <searchpattern>"ID: image"</searchpattern>
+    </host>
+    <host id="coppermine2">
+        <urlpattern>^https?:\/\/(?:www\.)?.+?\/(\w+\/)?displayimage\.php\?album=</urlpattern>
+        <searchpattern><![CDATA[function(pageData, pageUrl) {
+            var hUrl = pageUrl.match(/https?:\/\/(?:www\.)?.+?\/(?:\w+\/)?/);
+            var iUrl = pageData.match(/src="(albums\/[^\"]+)normal_([^\"]+)"/);	
+            if (!iUrl) iUrl = pageData.match(/src="(albums\/[^\"]+)([^\"]+)"/);	
+            return iUrl ? {imgUrl: hUrl + iUrl[1] + iUrl[2], status: "OK"} : {imgUrl: null, status: "ABORT"}
+        }]]></searchpattern>
+    </host>
+    <host id="coppermine_gallery2">
+        <urlpattern>^http:\/\/.+\/displayimage(?:\.php\?pid=\d+|-\d+\.html)&amp;fullsize=1</urlpattern>
+        <searchpattern>"QUERYSELECTOR: #content img"</searchpattern>
+    </host>
+    <host id="imagebam">
+        <urlpattern>^http:\/\/(?:www\.)?imagebam\.com\/image\/[^&amp;]+$</urlpattern>
+        <searchpattern>"QUERYSELECTOR: .image"</searchpattern>
+    </host>
+    <host id="imagevenue">
+        <urlpattern>^https?:\/\/img[0-9]+\.imagevenue\.com\/(img|view)\.php\?(.*&amp;)?image=</urlpattern>
+        <searchpattern>"ID: thepic"</searchpattern>
+        <errorpattern>This image does not exist on this server</errorpattern>
+        <filenamepattern mode="filename" filename="$2.$5">^(\d+)_(.+)_(\d+)_(\d+)lo\.(.+)$</filenamepattern>
+    </host>
+    <host id="imgbox">
+        <urlpattern>http:\/\/imgbox\.com\/\w+</urlpattern>
+        <searchpattern>"ID: img"</searchpattern>
+        <filenamepattern mode="content-regex" filename="$1">&lt;img.+id="img".+title="(.+)" /&gt;</filenamepattern>
+    </host>
+    <host id="imgur">
+        <urlpattern>^http:\/\/i\.imgur\.com\/.+</urlpattern>
+        <searchpattern><![CDATA[function(pageData, pageUrl) {
+            return {imgUrl: pageUrl, status: "OK"};
+        }]]></searchpattern>
+    </host>
+    <host id="imgur2">
+        <urlpattern>^https?:\/\/imgur\.com\/(?:.+\/)?(?!(random|help|tos|stats|apps|removalrequest|blog|forgotpassword|top|new|rss|upgrade)$)[^/]+$</urlpattern>
+        <searchpattern><![CDATA[function(pageData, pageUrl) {
+            var iUrl = pageData.match(/<link rel="image_src" href="([^"]+)"/);
+            if (!iUrl) iUrl = pageData.match(/<meta property="og:image" content="([^"]+)"/);
+            if (!iUrl) iUrl = pageData.match(/<a href="(.*\/\/i\.imgur\.com\/[^"]+)"/);
+            if (!iUrl) iUrl = pageData.match(/<img src="(.*\/\/i\.imgur\.com\/[^"]+)"/);
+            return iUrl ? {imgUrl: iUrl[1], status: "OK"} : {imgUrl: null, status: "ABORT"};
+        }]]></searchpattern>
+    </host>
+    <host id="picloadorg">
+        <urlpattern>https://picload.org/view/(.+)/(.+?)\.html</urlpattern>
+        <searchpattern>"ID: stageImageSrc"</searchpattern>
+    </host>
+    <host id="pixhost">
+        <urlpattern>https?:\/\/(?:www\.)?pixhost\.org\/show\/.+</urlpattern>
+        <searchpattern>"ID: image"</searchpattern>
+    </host>
+    <host id="pixroute">
+        <urlpattern>^http:\/\/(?:www\.)?pixroute\.com\/.+\/.+\.html$</urlpattern>
+        <searchpattern>"QUERYSELECTOR: div a[href='#'] img"</searchpattern>
+        <filenamepattern mode="content-queryselector" filename="$match">.file_slot td[nowrap]</filenamepattern>
+    </host>
+    <host id="postimg">
+        <urlpattern>^https?:\/\/(?:www\.)?postim(g|age)\.org\/image(?:\.php\?|\/)</urlpattern>
+        <searchpattern>"ID: download"</searchpattern>
+        <filenamepattern mode="content-queryselector" filename="$match.$ext">.imagename</filenamepattern>
+    </host>
+    <host id="turboimagehost">
+        <urlpattern>https?:\/\/www\.turboimagehost\.com\/p\/.+\.html</urlpattern>
+        <searchpattern>"ID: imageid"</searchpattern>
+    </host>
+</hostfile>

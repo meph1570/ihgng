@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IHGng</title>
+    <link rel="stylesheet" href="mini-default.min.css"/>
+    <link rel="stylesheet" href="style.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<header class="sticky row">
+    <div class="col-sm col-md-10 col-md-offset-1">
+        
+            <a href="index.html" class="button ">Home</a>
+        
+            <a href="extension.html" class="button ">Extension</a>
+        
+            <a href="hostfiles.html" class="button active">Hostfiles</a>
+        
+            <a href="https://github.com/meph1570/ihgng" class="button ">Github</a>
+        
+    </div>
+</header>
+
+<div class="container">
+    
+    <div class="row cols-sm-12 cols-md-10">
+        <div class="col-md-offset-1">
+            
+    <h1>Hostfiles</h1>
+
+    <h2 id="general">General</h2>
+
+    <p>
+        The hostfiles are loaded top to bottom, which means if there are duplicate hosts the host rule from the
+        last hostfile loaded are used. Local hostfiles are always loaded last.
+    </p>
+
+
+    <h2 id="security">Security considerations</h2>
+    <p>
+        While IHGng is compatible with other XML-based hostlists, please be aware that you only should
+        add hostfiles from sources you trust.
+    </p>
+    <p>
+        Hoster rules written in JavaScript aren't executed in the same context as the addon but still have access
+        to some runtime information and may leak data to a 3rd party. A malicous hoster rule could leak
+        your IP, the files you download, your browser version and platform and from which pages you download your files.
+    </p>
+    <p>
+        Please keep this in mind if you add 3rd party hostfiles.
+    </p>
+
+    <h2>Custom hosters</h2>
+
+    <p>
+        After enabling the "Debug mode" in IHGng's settings you can edit hosts or create new ones.
+    </p>
+
+    <h4>Id</h4>
+
+    <p>The unique id for this hoster.</p>
+
+    <h4>Url pattern</h4>
+
+    <p>Use this hoster if the regex from the url pattern matches.</p>
+
+    <h4>Search pattern</h4>
+
+    <p>Search pattern supports the following operations:</p>
+
+    <dl>
+        <dt><em>Id</em>: "ID: <var>id</var>"</dt>
+        <dd>Selects the html element with the specified <var>id</var> and searches for either a href or src attribute</dd>
+
+        <dt><em>CSS Selector</em>: "QUERYSELECTOR: <var>selector</var>"</dt>
+        <dd>Runs the css selector <var>selector</var> on the document and searches for either a href or src attribute</dd>
+
+        <dt><em>URL replace</em>: "REPLACE '<var>regex</var>', '<var>replace</var>'"</dt>
+        <dd>Runs the regex <var>regex</var> on the page's url and replaces it with <var>replace</var></dd>
+
+        <dt><em>&ltimg /> tag match</em>: "<var>regex</var>"</dt>
+        <dd>Searches all &ltimg /> tags for <var>regex</var>. The whole definition is used, not just the src part.</dd>
+
+        <dt><em>JavaScript</em>: function (pageData, pageUrl) { return {imgUrl: "", status: ""}; }</dt>
+        <dd>
+            Runs the defined function. Allowed values for status are <var>ABORT</var>, <var>OK</var>
+            and <var>REQUEUE</var>.
+        </dd>
+    </dl>
+
+    <p>Refer to src/background/hostfile.js for more information or look how other hosters are implemented</p>
+
+    <h4>Error pattern</h4>
+
+    <p>
+        If this regex matches the file is gone.
+    </p>
+
+    <h4>Filename pattern</h4>
+
+    <p>
+        Filename patterns are used to determine the filename if it isn't present in it's orginal form from the
+        download url.
+
+        The first field is to select the mode, the second is the pattern and the third is how the filename should
+        be constructed.
+    </p>
+
+    <p>Filename pattern supports the following modes:</p>
+
+    <dl>
+        <dt><em>Filename</em></dt>
+        <dd>
+            <ul>
+                <li>Pattern: regex</li>
+                <li>Replace: <var>$1</var>, <var>$2</var>, <var>$3</var> and so on to reference the matched groups</li>
+            </ul>
+        </dd>
+        <dt><em>Content (regex)</em></dt>
+        <dd>
+            <ul>
+                <li>Pattern: regex</li>
+                <li>Replace: <var>$1</var>, <var>$2</var>, <var>$3</var> and so on to reference the matched groups</li>
+            </ul>
+        </dd>
+        <dt><em>Content (queryselector)</em></dt>
+        <dd>
+            <ul>
+                <li>Pattern: CSS selector</li>
+                <li>
+                    Replace: <var>$match</var> for the matched node's content,
+                    <var>$ext</var> for the original filename's extension
+                </li>
+            </ul>
+        </dd>
+    </dl>
+
+        </div>
+    </div>
+    
+</div>
+
+</body>
+</html>
