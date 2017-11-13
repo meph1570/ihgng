@@ -2,7 +2,7 @@
     "manifest_version": 2,
 
     "name": "IHGng",
-    "version": "0.1.0b0",
+    "version": "0.1.0b1",
 
     "applications": {
         "gecko": {
