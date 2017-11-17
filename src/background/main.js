@@ -24,7 +24,7 @@
  *
  */
 
-import {HOSTFILE_DEFAULT_URL} from "../lib/globals"
+import {DEBUG_DEFAULT, HOSTFILE_DEFAULT_URL} from "../lib/globals"
 
 import Dexie from "dexie";
 
@@ -39,7 +39,7 @@ const DEFAULT_CONFIG = {
             enabled: true
         }
     ],
-    debug: true,
+    debug: DEBUG_DEFAULT,
     hideThumbs: false,
     contextMenuEnabled: false,
     dupeDbEnabled: true,

@@ -77,7 +77,8 @@ if (process.env.NODE_ENV === 'production') {
     module.exports.plugins = (module.exports.plugins || []).concat([
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: '"production"'
+                NODE_ENV: '"production"',
+                DEBUG: false
             },
             HOSTFILE_URL: JSON.stringify(require("./globals.json").PRODUCTION.HOSTFILE_URL)
         }),
@@ -95,7 +96,8 @@ if (process.env.NODE_ENV === 'production') {
 else if (process.env.NODE_ENV === "development") {
     module.exports.plugins = (module.exports.plugins || []).concat([
         new webpack.DefinePlugin({
-            HOSTFILE_URL: JSON.stringify(require("./globals.json").DEV.HOSTFILE_URL)
+            HOSTFILE_URL: JSON.stringify(require("./globals.json").DEV.HOSTFILE_URL),
+            DEBUG: true
         })
     ]);
 }
