@@ -309,7 +309,7 @@ async function handleMessage(request, sender, sendResponse) {
 
 
 function collectLinks(start) {
-    browser.tabs.query({active: true}).then((tabs) => {
+    browser.tabs.query({currentWindow: true, active: true}).then((tabs) => {
         const tabId = tabs[0].id;
         browser.tabs.executeScript(tabId, {
             file: "/content_scripts/collect_links.js",
