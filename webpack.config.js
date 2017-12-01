@@ -77,10 +77,10 @@ if (process.env.NODE_ENV === 'production') {
     module.exports.plugins = (module.exports.plugins || []).concat([
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: '"production"',
-                DEBUG: false
+                NODE_ENV: '"production"'
             },
-            HOSTFILE_URL: JSON.stringify(require("./globals.json").PRODUCTION.HOSTFILE_URL)
+            HOSTFILE_URL: JSON.stringify(require("./globals.json").PRODUCTION.HOSTFILE_URL),
+            DEBUG: false
         }),
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: false,
