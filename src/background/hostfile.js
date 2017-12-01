@@ -656,7 +656,7 @@ class Hosters {
         copyHosters(this.hosters);
         copyHosters(this.matchedHosters);
 
-        preparedHosters.sort((a, b) => { return b.id < a.id });
+        preparedHosters.sort((a, b) => { return b.id - a.id });
 
         return preparedHosters;
     }
