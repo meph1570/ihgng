@@ -82,6 +82,12 @@ let vm = new Vue({
                     browser.runtime.sendMessage({
                         action: "get-local-hostfile"
                     });
+                },
+                "set-debug": (enabled) => {
+                    browser.runtime.sendMessage({
+                        action: "set-debug",
+                        enabled: enabled
+                    });
                 }
             },
             ref: "settings"

@@ -83,6 +83,8 @@ class IHGng {
     onConfigReady() {
         this.storeConfig();
 
+        this.downloadList.debug = this.config.debug;
+
         this.hosters.debug = this.config.debug;
         this.hosters.load(this.config.hostfiles, {force: false}).then(
             () => console.log("[main] Hostfiles loaded"),
@@ -117,9 +119,17 @@ class IHGng {
 
         Object.assign(this.config, newConfig);
 
+        this.hosters.debug = newConfig.debug;
         this.hosters.maxConnections = newConfig.threads;
 
+        this.downloadList.debug = newConfig.debug;
+
         browser.storage.local.set({config: newConfig});
+    }
+
+    setDebug(enabled) {
+        this.hosters.debug = enabled;
+        this.config.debug = enabled;
     }
 
     initDatabase() {
@@ -300,6 +310,9 @@ async function handleMessage(request, sender, sendResponse) {
             action: "local-hostfile",
             content: ihgng.hosters.localHostFile.content
         });
+    }
+    else if (request.action === "set-debug") {
+        ihgng.setDebug(request.enabled);
     }
     else {
         console.error("Unknown action received: ", request);

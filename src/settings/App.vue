@@ -269,7 +269,7 @@
             <el-row type="flex" :gutter="20">
                 <el-col :span="3" class="align-baseline">Debug mode</el-col>
                 <el-col :span="21">
-                    <el-switch on-text="" off-text="" v-model="config.debug"></el-switch>
+                    <el-switch on-text="" off-text="" v-model="config.debug" @change="setDebug"></el-switch>
                     <p>Don't touch this unless you know what you're doing</p>
                 </el-col>
             </el-row>
@@ -434,7 +434,10 @@
                     let hoster = this.getHoster(hosterId).hoster;
                     this.currentHoster = {};
                     Object.assign(this.currentHoster, hoster);
-                    if (!hoster.filenamepattern.mode) {
+                    if (!hoster.filenamepattern || !hoster.filenamepattern.mode) {
+                        if (!hoster.filenamepattern) {
+                            this.$set(this.currentHoster, "filenamepattern", {});
+                        }
                         this.$set(this.currentHoster.filenamepattern, "mode", null);
                     }
                 }
@@ -507,6 +510,10 @@
             showLocalHostFile() {
                 this.$emit("get-local-hostfile");
                 this.localHostFileDialogVisible = true;
+            },
+
+            setDebug(enabled) {
+                this.$emit("set-debug", enabled);
             },
 
             saveSettings() {
