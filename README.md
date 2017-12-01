@@ -3,7 +3,7 @@
 ## About
 
 IHGng is a WebExtension compatible batch downloader for popular image hosting sites. 
-Only supports FF55+ at the moment.
+Only supports FF57+ at the moment.
 Click [here](FIXME) to install.   
 
 ## Build Setup
