@@ -134,6 +134,8 @@ class DownloadList {
     constructor(/** Hosters */hosters) {
         this.hosters = hosters;
 
+        this.debug = false;
+
         this.downloads = [];
         this.shadowDownloads = [];
 
@@ -165,7 +167,7 @@ class DownloadList {
 
     unpause() {
         this.paused = false;
-        //this.processQueue();
+        this.processQueue();
         this.firePauseCallback();
     }
 
@@ -222,6 +224,10 @@ class DownloadList {
         }
 
         this.persist();
+        
+        if (!this.paused && !this.debug) {
+            this.processQueue();
+        }
 
         return group;
     }
