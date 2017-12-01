@@ -212,7 +212,7 @@ async function handleMessage(request, sender, sendResponse) {
 
             console.debug("Starting", links);
             try {
-                ihgng.downloadList.addLinks(sender.tab.title, links, {start: true});
+                ihgng.downloadList.addLinks(request.title || sender.tab.title, links, {start: true});
             }
             catch (e) {
                 /* Errors don't show up in console in message handlers */
@@ -233,7 +233,7 @@ async function handleMessage(request, sender, sendResponse) {
             console.debug("Done");
         }
         else {
-            openLinkSelect(links, ihgng.config.hideThumbs);
+            openLinkSelect(links, ihgng.config.hideThumbs, sender.tab.title);
         }
     }
     else if (request.action === "test-hoster") {

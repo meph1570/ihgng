@@ -47,12 +47,14 @@ browser.runtime.onMessage.addListener((message) => {
             render: function (h) {
                 return h(App, {props: {
                     links: this.links,
-                    hideThumbs: this.hideThumbs
+                    hideThumbs: this.hideThumbs,
+                    title: this.title
                 }});
             },
             data: {
                 links: message.links,
-                hideThumbs: message.hideThumbs
+                hideThumbs: message.hideThumbs,
+                title: message.title
             },
             propsData: {
                 links: message.links

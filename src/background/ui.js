@@ -88,13 +88,14 @@ function openPanel() {
 }
 
 
-function openLinkSelect(links, hideThumbs) {
+function openLinkSelect(links, hideThumbs, title) {
     let panelUrl = browser.extension.getURL("link_select/link_select.html");
 
     createTabAndSendMessage({url: panelUrl, active: true}, {
         action: "set-links",
         links: links,
-        hideThumbs: hideThumbs
+        hideThumbs: hideThumbs,
+        title: title
     });
 }
 

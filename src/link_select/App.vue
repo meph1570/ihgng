@@ -23,7 +23,7 @@
         <h1>Select links to download</h1>
         <el-row>
             <el-col :span="24">
-                <link-list ref="linkList" :hideThumbs=hideThumbs :links=links></link-list>
+                <link-list ref="linkList" :hideThumbs=hideThumbs :links=links :title=title></link-list>
             </el-col>
         </el-row>
         <el-row id="buttons" justify="end">
@@ -40,7 +40,8 @@
         name: "app",
         props: {
             "links": {type: Array},
-            "hideThumbs": {type: Boolean}
+            "hideThumbs": {type: Boolean},
+            "title": {type: String}
         },
 
         data() {
@@ -70,6 +71,7 @@
                 browser.runtime.sendMessage({
                     action: "links",
                     links: links,
+                    title:  this.title,
                     start: true,
                     close: true
                 });

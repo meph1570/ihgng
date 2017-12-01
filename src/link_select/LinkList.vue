@@ -121,7 +121,8 @@
 
         props: {
             links: {type: Array},
-            hideThumbs: {type: Boolean}
+            hideThumbs: {type: Boolean},
+            title: {type: String},
         },
 
         components: { contextMenu },
